@@ -1,0 +1,11 @@
+certifi==2018.4.16
+Django==2.0.5
+django-cors-headers==2.4.0
+djangorestframework==3.8.2
+gunicorn==19.7.1
+pipenv==2018.7.1
+pytz==2018.4
+numpy==1.7.0
+colour==0.1.5
+virtualenv==16.0.0
+virtualenv-clone==0.3.0
