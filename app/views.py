@@ -47,9 +47,11 @@ class LinkUploadView(APIView):
 
     def post(self, request, filename, format=None):
         try:
-            domain_file = request.data['domain']
-            problem_file = request.data['problem']
-            animation_file = request.data['animation']
+            # .encode('utf-8').decode('utf-8-sig') will remove the \ufeff in the string when add string as value in
+            # a dictionary.
+            domain_file = request.data['domain'].encode('utf-8').decode('utf-8-sig').lower()
+            problem_file = request.data['problem'].encode('utf-8').decode('utf-8-sig').lower()
+            animation_file = request.data['animation'].encode('utf-8').decode('utf-8-sig')
 
             # add url
             if "url" in request.data:

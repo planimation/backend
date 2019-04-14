@@ -219,7 +219,7 @@ def draw_line(obj_list, settings, state, remove, get_meta):
 
     # default function settings
     default_setting = {
-        "prefabImage": "line"
+        "prefabimage": "line"
     }
 
     # update default settings
@@ -263,8 +263,8 @@ def draw_line(obj_list, settings, state, remove, get_meta):
     line["rotate"] = fangle
     line["x"] = lx1
     line["y"] = ly1
-    line["showName"] = False
-    line["prefabImage"] = default_setting["prefabImage"]
+    line["showname"] = False
+    line["prefabimage"] = default_setting["prefabimage"]
     line["color"] = {"r": 0, "g": 0, "b": 0, "a": 1}
     line["height"] = 5
     line["name"] = name

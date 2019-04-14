@@ -1,5 +1,11 @@
-"""This module intergrate all the other module, it takes the domain PDDL, problem PDDL, and 
+"""
+This file is used for testing the functionality.
+The views.py in the parent folder is the main function on the server.
+
+
+This module intergrate all the other module, it takes the domain PDDL, problem PDDL, and
 animation profile, and it write the visualisation file to visualsation.json.
+
 """
 # -----------------------------Authorship-----------------------------------------
 # -- Authors  : Sai
@@ -38,18 +44,19 @@ def get_visualisation_file():
 	    url_link = sys.argv[4]
 
         # read animation profile from json
-        file = open(animation_file)
-        content = file.read()
-        plan = parser.Plan_generator.get_plan(open(domain_file, 'r').read(),
-                                              open(problem_file, 'r').read(),
+        animation_content = open(animation_file, 'r',encoding='utf-8-sig').read()
+        domain_content=open(domain_file, 'r',encoding='utf-8-sig').read().lower()
+        problem_content=open(problem_file, 'r',encoding='utf-8-sig').read().lower()
+        plan = parser.Plan_generator.get_plan(domain_content,
+                                              problem_content,
                                               url_link)
 
-        predicates_list = parser.Domain_parser.get_domain_json(open(domain_file, 'r').read())
+        predicates_list = parser.Domain_parser.get_domain_json(domain_content)
 
-        problem_dic = parser.Problem_parser.get_problem_dic(open(problem_file, 'r').read(), predicates_list)
-        object_list = parser.Problem_parser.get_object_list(open(problem_file, 'r').read())
-        animation_profile = json.loads(parser.Animation_parser.get_animation_profile(content, object_list))
-        stages = parser.Predicates_generator.get_stages(plan, problem_dic, open(problem_file, 'r').read(),
+        problem_dic = parser.Problem_parser.get_problem_dic(problem_content, predicates_list)
+        object_list = parser.Problem_parser.get_object_list(problem_content)
+        animation_profile = json.loads(parser.Animation_parser.get_animation_profile(animation_content, object_list))
+        stages = parser.Predicates_generator.get_stages(plan, problem_dic, problem_content,
                                                         predicates_list)
 
         result = solver.Solver.get_visualisation_dic(stages, animation_profile, plan['result']['plan'], problem_dic)

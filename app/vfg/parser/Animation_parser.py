@@ -53,13 +53,15 @@ def parse(text, result):
     :param text: whole text file
     :param result: animation dictionary
     :return: updated animation dictionary
+
+    All the text are case insensitive, except the image name and value.
     """
     text_blocks = Parser_Functions.get_bracket(text, 2)
     for text_block in text_blocks:
-        if "visual" in text_block:
-            parse_visual(text_block, result)
-        elif "predicate" in text_block:
-            parse_predicate(text_block, result)
+        if "visual" in text_block.lower():
+            parse_visual(text_block.lower(), result)
+        elif "predicate" in text_block.lower():
+            parse_predicate(text_block.lower(), result)
         elif "image" in text_block:
             parse_image(text_block, result)
 
