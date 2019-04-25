@@ -21,12 +21,14 @@ def parse_objects(text):
     :return: an array of objects
     """
     text = remove_bracket(text)
+    text = re.sub(r'\s+-\s*\w+|-\s+\w+', ' ', text)
     objects = re.split(r'\s+', text)
     result = []
     for object in objects:
         if ":" not in object and len(object) != 0:
             result.append(object)
     return result
+
 
 
 def get_one_block(input):
