@@ -30,7 +30,6 @@ def parse_objects(text):
     return result
 
 
-
 def get_one_block(input):
     """
     This function is used to get one block of text by remove the first "(", and try to find the close

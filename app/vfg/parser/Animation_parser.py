@@ -220,7 +220,15 @@ def parse_rule(rule, require_dic):
     elif "add" in right_value:
         template["value"] = parse_add(right_value, require_dic)
     elif "(" in right_value:
-        name, value = Parser_Functions.parse_objects(right_value)
+        try:
+            name, value = Parser_Functions.parse_objects(right_value)
+        except:
+            print("right value: ")
+            print(right_value)
+            print()
+            for i in range(len(right_value)):
+                print(right_value[i])
+            print()
         template["value"]["equal"] = {name: value}
         update_require(require_dic, name, value)
     return template

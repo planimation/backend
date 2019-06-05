@@ -13,6 +13,7 @@
 import re
 import numpy as np
 
+
 """This module contain all the customer funtion we designed to help position the objects"""
 
 
@@ -41,6 +42,8 @@ def customf_controller(fname, obj_list, settings, state, remove, get_meta=False)
         return distributey(obj_list, settings, state, remove, get_meta)
     elif fname == "distribute_within_objects_horizontal":
         return distribute_within_objects_horizontal(obj_list, settings, state, remove, get_meta)
+    elif fname == "distribute_within_objects_horizontal_v2":
+        return distribute_within_objects_horizontal_v2(obj_list, settings, state, remove, get_meta)
     elif fname == "calculate_label":
         return calculate_label(obj_list, settings, state, remove, get_meta)
     elif fname == "draw_line":
@@ -53,7 +56,7 @@ def get_all_funtion_name():
     :return: a list of custom function name
     """
     function_name = ["distributex", "distribute_grid_around_point", "distribute_within_objects_vertical",
-                     "apply_smaller",
+                     "apply_smaller", "distribute_within_objects_horizontal_v2",
                      "align_middle", "distributey", "distribute_within_objects_horizontal", "calculate_label",
                      "draw_line"]
     return function_name
@@ -208,6 +211,7 @@ def draw_line(obj_list, settings, state, remove, get_meta):
     :return: a line object
     """
 
+
     if get_meta:
         meta = {}
         meta["reset"] = False
@@ -337,8 +341,7 @@ def distribute_within_objects_vertical(obj_list, settings, state, remove, get_me
                 result["y"] = parentdic["y"] + (num % row_count) * objdic["height"] + padding
                 return result, state
 
-
-def distribute_within_objects_horizontal(obj_list, settings, state, remove, get_meta):
+def distribute_within_objects_horizontal_v2(obj_list, settings, state, remove, get_meta):
     """
     The function return x location of obj based on the location of parent
     :param obj_list: Array of objects dictionary
@@ -349,6 +352,14 @@ def distribute_within_objects_horizontal(obj_list, settings, state, remove, get_
     :return: updated attribute dictionary and state
     """
 
+    #zmff
+    # print("obj_list: " + str(obj_list))
+    # print("settings: " + str(settings))
+    # print("state: " + str(state))
+    # print("remove: " + str(remove))
+    # print("get_meta: " + str(get_meta))
+    # print()
+
     if get_meta:
         meta = {}
         meta["reset"] = False
@@ -357,6 +368,7 @@ def distribute_within_objects_horizontal(obj_list, settings, state, remove, get_
             "1": ["x"],
         }
         return meta
+
 
     # default function settings
     default_setting = {
@@ -387,6 +399,7 @@ def distribute_within_objects_horizontal(obj_list, settings, state, remove, get_
     if obj in state[parent]:
         objindex = state[parent].index(obj)
         result["x"] = parentdic["x"] + objindex * (objdic["width"] + padding)
+        print(result)
         return result, state
     else:
         for num, value in enumerate(state[parent]):
@@ -394,6 +407,77 @@ def distribute_within_objects_horizontal(obj_list, settings, state, remove, get_
                 state[parent][num] = obj
                 state[parent].append(num + 1)
                 result["x"] = parentdic["x"] + num * (objdic["width"] + padding)
+                print(result)
+                return result, state
+
+
+def distribute_within_objects_horizontal(obj_list, settings, state, remove, get_meta):
+    """
+    The function return x location of obj based on the location of parent
+    :param obj_list: Array of objects dictionary
+    :param settings: a dictionary for settings
+    :param state: state of the world
+    :param remove: whether remove the object from the state
+    :param get_meta: whether return the meta data
+    :return: updated attribute dictionary and state
+    """
+
+    #zmff
+    print("obj_list: " + str(obj_list))
+    print("settings: " + str(settings))
+    print("state: " + str(state))
+    print("remove: " + str(remove))
+    print("get_meta: " + str(get_meta))
+    print()
+
+    if get_meta:
+        meta = {}
+        meta["reset"] = True
+        meta["require"] = {
+            "0": ["width"],
+            "1": ["x"],
+        }
+        return meta
+
+
+    # default function settings
+    default_setting = {
+        "padding": 40,
+        "col_count": 4
+    }
+
+    # update default settings
+    for setting in default_setting:
+        if setting in settings:
+            default_setting[setting] = settings[setting]
+
+    if len(obj_list) != 2:
+        return False
+
+    result = {
+        "x": False
+    }
+    obj, objdic = list(obj_list[0].items())[0]
+    parent, parentdic = list(obj_list[1].items())[0]
+
+    # initalise state for parent
+    if parent not in state:
+        state[parent] = [0]
+
+    padding = default_setting["padding"]
+
+    if obj in state[parent]:
+        objindex = state[parent].index(obj)
+        result["x"] = parentdic["x"] + objindex * (objdic["width"] + padding)
+        print(result)
+        return result, state
+    else:
+        for num, value in enumerate(state[parent]):
+            if num == value:
+                state[parent][num] = obj
+                state[parent].append(num + 1)
+                result["x"] = parentdic["x"] + num * (objdic["width"] + padding)
+                print(result)
                 return result, state
 
 

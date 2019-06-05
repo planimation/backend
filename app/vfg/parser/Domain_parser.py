@@ -33,9 +33,17 @@ def get_domain_json(domain_text):
     """
     try:
         patternPare = re.compile(r'\((.*?)\)')
-        strPre = domain_text[domain_text.index("predicates") + len("predicates"):domain_text.index("action")]
+        old_strPre = domain_text[domain_text.index("predicates") + len("predicates"):domain_text.index("action")]
 
-        namePare = patternPare.findall(strPre)
+        # zmff
+        # replace the unnecessary arguments with space, for the sake of selecting the info needed
+        # example: old = (predicate ?obj - (either a b) ?obj2 - (either c d ))
+        #         new = (predicate ?obj  ?obj2 )
+        new_strPre= re.sub(r'(\s+-\s*|-\s+)(((\w)+)|((\((\s|\w)*\))?))', ' ', old_strPre)
+        # print("old strPre: " + str(old_strPre))
+        # print("new strPre: " + str(new_strPre))
+        namePare = patternPare.findall(new_strPre)
+        # print("namePare: " + str(namePare))
         PredicateList = {}
 
         for name in namePare:
