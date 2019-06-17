@@ -1,0 +1,14 @@
+version: '3'
+services:
+  planimation_server:
+    build:
+      context: ${BACKEND_SOURCE}
+      dockerfile: ../docker/release/Dockerfile
+    restart: always
+    environment:
+      DEBUG: "true"
+    volumes:
+      - ${BACKEND_SOURCE}:/code
+    command: "python manage.py runserver 0.0.0.0:8000"
+    ports:
+      - "8000:8000"
