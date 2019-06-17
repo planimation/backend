@@ -1,11 +1,23 @@
-# Installation
-## requirements
-+ Python 3.6
-+ Django 2.0
-+ Sign up for Heroku account
-+ Heroku CLI
+# 1. Local server setup
 
-# Create Heroku Project
+**Install python version 3.6** from https://www.python.org/downloads/release/python-360/
+Then install python dependencies: `pip install -r requirements.txt` 
+Finally, run the server: `python manage.py runserver`
+
+
+# 2. Docker deployment
+- Install docker from https://www.docker.com/ if you don't have it on your local machine
+
+##Setting required env's
+- Rename env.sample (inside backend/docker/) to .env 
+- Change the value of BACKEND_SOURCE pointing to the right path in your local system
+  
+## Running docker
+- Navigate to backend/docker/ and run the command `docker-compose up` on your terminal
+- Test if the web server is running in the docker using the command `docker ps` or alternatively visit `localhost:8000` in the browser.
+
+# 3. Heroku
+## Create Heroku Project
 After installing heroku, first login with your heroku account in terminal/console:
 `heroku login`
  then create an empty heroku project:
@@ -16,7 +28,7 @@ and set the buildpack environment for python:
 `heroku buildpacks:set heroku/python`
 at last, move your django files to this directory 
 
-# Deploy Project on Heroku
+## Deploy Project on Heroku
 Now the project is setup, the next step is deploying it to heroku.
 We need to have two documents:
 + `requirements.txt`
@@ -36,3 +48,4 @@ Heroku is using git to publish, so next, we will need to add all our change in t
 `git commit -m "deploy project"`
 then we will push to heroku master branch:
 `git push heroku master`
+
