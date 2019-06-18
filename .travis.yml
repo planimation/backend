@@ -1,6 +1,10 @@
 language: python
 python: "3.6"
-cache: pip
+cache:
+  directories:
+    - $HOME/.cache/pip
+before_cache:
+  - rm -f $HOME/.cache/pip/log/debug.log
 env:
   - BACKEND_SOURCE=$TRAVIS_BUILD_DIR/server
 services:
