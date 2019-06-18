@@ -9,4 +9,3 @@ numpy==1.7.0
 colour==0.1.5
 virtualenv==16.0.0
 virtualenv-clone==0.3.0
-flake8>=3.7.0

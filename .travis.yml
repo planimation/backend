@@ -1,13 +1,13 @@
 language: python
 python: "3.6"
+cache: pip
+env:
+  - BACKEND_SOURCE=$TRAVIS_BUILD_DIR/server
 services:
   - docker
-before_script: pip install docker-compose
-
+before_install:
+  - cd $TRAVIS_BUILD_DIR/docker
+before_script: 
+  - pip install docker-compose
 script:
-  - docker-compose run planimation_server -c "python manage.py flake8"
-
-# install:
-#   - pip install -r ./server/requirements.txt
-
-# script: echo "npm test temporarily disabled"
+  - docker-compose run planimation_server sh -c "python manage.py test"

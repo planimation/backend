@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/rakeshchoyal92/backend.svg?branch=develop)](https://travis-ci.com/rakeshchoyal92/backend)
+
 # 1. Local server setup
 
 - Clone the project from https://github.com/Planning-Visualisation/planning-visualisation
