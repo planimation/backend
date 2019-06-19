@@ -1,6 +1,6 @@
+
 language: python
 python: "3.6"
-cache: docker
 env:
   - BACKEND_SOURCE=$TRAVIS_BUILD_DIR/server
 services:
@@ -9,5 +9,16 @@ before_install:
   - cd $TRAVIS_BUILD_DIR/docker
 before_script: 
   - pip install docker-compose
-script:
-  - docker-compose run planimation_server sh -c "python manage.py test"
+  - docker-compose build
+jobs:
+  include:
+    - stage: "test"
+      name: "Test application"
+      script: docker-compose run planimation-backend:latest sh -c "python manage.py test"
+      script: echo "Test pass ..."
+    - stage: "deploy"
+      if: branch = develop
+      script: 
+        - echo "Deploy application"
+        - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+        - docker push rakeshchoyal92/planimation-backend:latest
