@@ -1,8 +1,10 @@
 # 1. Local server setup
 
-**Install python version 3.6** from https://www.python.org/downloads/release/python-360/
-Then install python dependencies: `pip install -r requirements.txt` 
-Finally, run the server: `python manage.py runserver`
+- Clone the project from https://github.com/Planning-Visualisation/planning-visualisation
+- Install python version 3.6 from https://www.python.org/downloads/release/python-360/
+- Navigate to /backend/server
+- install python dependencies: `pip install -r requirements.txt` 
+- Finally, run the server: `python manage.py runserver`
 
 
 # 2. Docker deployment

@@ -4,6 +4,7 @@ services:
     build:
       context: ${BACKEND_SOURCE}
       dockerfile: ../docker/release/Dockerfile
+    image: rakeshchoyal92/planimation-backend:latest
     restart: always
     environment:
       DEBUG: "true"
