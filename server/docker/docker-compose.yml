@@ -1,9 +1,6 @@
 version: '3'
 services:
   planimation_server:
-    build:
-      context: ${BACKEND_SOURCE}
-      dockerfile: ../docker/release/Dockerfile
     image: rakeshchoyal92/planimation-backend:latest
     restart: always
     environment:
