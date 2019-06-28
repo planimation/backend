@@ -5,7 +5,7 @@ env:
   global:
     - BACKEND_PATH=$TRAVIS_BUILD_DIR/server
     - DOCKER_PATH=$TRAVIS_BUILD_DIR/server/docker/release/Dockerfile
-    - IMAGE_TAG=rakeshchoyal92/planimation-backend:latest
+    - IMAGE_TAG=planimation/backend:latest
 services:
   - docker
 before_script: 
