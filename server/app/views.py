@@ -59,8 +59,17 @@ class LinkUploadView(APIView):
         else:
             url_link = "http://solver.planning.domains/solve"
 
+        if "plan" in request.data:
+            actions = request.data['plan'].encode('utf-8').decode('utf-8-sig').lower()
+            if "(" in actions and ")" in actions:
+                plan = Plan_generator.get_plan_actions(domain_file, actions)
+            else:
+                #If user upload the wrong action plan, use the default planner url
+                plan = Plan_generator.get_plan(domain_file, problem_file, url_link)
+
+        else:
+            plan = Plan_generator.get_plan(domain_file, problem_file, url_link)
         predicates_list = Domain_parser.get_domain_json(domain_file)
-        plan = Plan_generator.get_plan(domain_file, problem_file, url_link)
         problem_dic = Problem_parser.get_problem_dic(problem_file,predicates_list)
 
         object_list = Problem_parser.get_object_list(problem_file)
@@ -68,25 +77,41 @@ class LinkUploadView(APIView):
         stages = Predicates_generator.get_stages(plan, problem_dic, problem_file,predicates_list)
         objects_dic = Initialise.initialise_objects(stages["objects"], animation_profile)
 
-        myfile = open('stagejson', 'w')
 
-        # Write a line to the file
-        myfile.write(json.dumps(stages))
-        # Close the file
-        myfile.close()
-
-        myfile = open('objects_dic', 'w')
-
-        # Write a line to the file
-        myfile.write(json.dumps(objects_dic))
-        # Close the file
-        myfile.close()
-        myfile = open('animation_profile', 'w')
-
-        # Write a line to the file
-        myfile.write(json.dumps(animation_profile))
-        # Close the file
-        myfile.close()
+        # for testing
+        #  myfile = open('plan', 'w')
+        #
+        # # Write a line to the file
+        # myfile.write(json.dumps(plan))
+        # # Close the file
+        # myfile.close()
+        #
+        # myfile = open('predicatelist', 'w')
+        #
+        # # Write a line to the file
+        # myfile.write(json.dumps(predicates_list))
+        # # Close the file
+        # myfile.close()
+        #
+        # myfile = open('stagejson', 'w')
+        #
+        # # Write a line to the file
+        # myfile.write(json.dumps(stages))
+        # # Close the file
+        # myfile.close()
+        #
+        # myfile = open('objects_dic', 'w')
+        #
+        # # Write a line to the file
+        # myfile.write(json.dumps(objects_dic))
+        # # Close the file
+        # myfile.close()
+        # myfile = open('animation_profile', 'w')
+        #
+        # # Write a line to the file
+        # myfile.write(json.dumps(animation_profile))
+        # # Close the file
+        # myfile.close()
 
 
         result = Solver.get_visualisation_dic(stages, animation_profile,plan['result']['plan'],problem_dic)
