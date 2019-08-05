@@ -24,8 +24,11 @@
 #--------------------------------------------------------------------------------
 import sys
 import os
+import json
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 import Problem_parser
+
+
 
 def get_stages(plan, problem_dic, problem_file, predicates_list):
     """
@@ -63,8 +66,27 @@ def get_stages(plan, problem_dic, problem_file, predicates_list):
         "stageInfo": "No Step Information"
         })
 
+
+
     for counter in range(len(actionlist)):
         newpredicate_list = Problem_parser.get_state_list(predicates_list, action_effect_list[counter])
+
+
+        # For testing
+        # if counter ==0:
+        #     myfile = open('newpredicate_list', 'w')
+        #
+        #     # Write a line to the file
+        #     myfile.write(json.dumps(newpredicate_list))
+        #     # Close the file
+        #     myfile.close()
+        #
+        #     myfile = open('action_effect_list', 'w')
+        #
+        #     # Write a line to the file
+        #     myfile.write(json.dumps(action_effect_list[0]))
+        #     # Close the file
+        #     myfile.close()
 
         # 1. Find the difference between 2 steps
         add_predicate_list = []

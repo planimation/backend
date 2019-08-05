@@ -25,7 +25,11 @@
 #--------------------------------------------------------------------------------
 import urllib.request
 import json
-
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/../' ))
+import Parser_Functions
+from action_plan_parser.parser import Problem
 #######################################################
 # Input File: A domain file
 # Input File: A problem file
@@ -58,3 +62,30 @@ def get_plan(domain_file, problem_file,url):
     str_response = response.read().decode('utf-8')
     plan = json.loads(str_response)
     return plan
+
+
+def get_plan_actions(domain_file, actions):
+    domain=Problem(domain_file)
+    plan = []
+    act_map = {}
+    print(actions)
+    for a in domain.actions:
+        act_map[a.name] = a
+    text_blocks = Parser_Functions.get_bracket(actions, 1)
+    for act_line in text_blocks:
+        print(act_line)
+        while ' )' == act_line[-2:]:
+            act_line = act_line[:-2] + '  )'
+        act_line = act_line.rstrip('\r\n')
+        a_name = act_line[1:-1].split(' ')[0]
+        if len(act_line.split(' ')) > 1:
+            a_params = act_line[1:-1].split(' ')[1:]
+        else:
+            a_params = False
+        a = act_map[a_name]
+        plan.append({'name': act_line, 'action': a.export(grounding=a_params)})
+
+    result = {}
+    result["result"] = {}
+    result["result"]["plan"]=plan
+    return result
