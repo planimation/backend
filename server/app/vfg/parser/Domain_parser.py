@@ -4,19 +4,7 @@
 #-- Group    : Planning Visualisation
 #-- Date     : 13/August/2018
 #-- Version  : 1.0
-#--------------------------------------------------------------------------------
-#-----------------------------Reviewer-------------------------------------------
-#-- Authors  : Sharukh, Gang chen
-#-- Group    : Planning Visualisation
-#-- Date     : 23/August/2018
-#-- Version  : 1.0
-#--------------------------------------------------------------------------------
-#-----------------------------Reviewer-------------------------------------------
-#-- Authors  : Yi Ding
-#-- Group    : Planning Visualisation
-#-- Date     : 17/Oct/2018
-#-- Version  : 1.0
-#--------------------------------------------------------------------------------
+
 import re
 
 
@@ -35,15 +23,14 @@ def get_domain_json(domain_text):
         patternPare = re.compile(r'\((.*?)\)')
         old_strPre = domain_text[domain_text.index("predicates") + len("predicates"):domain_text.index("action")]
 
-        # zmff
+        # update by Mengfeifei Zhang
         # replace the unnecessary arguments with space, for the sake of selecting the info needed
         # example: old = (predicate ?obj - (either a b) ?obj2 - (either c d ))
         #         new = (predicate ?obj  ?obj2 )
+
         new_strPre= re.sub(r'(\s+-\s*|-\s+)(((\w)+)|((\((\s|\w)*\))?))', ' ', old_strPre)
-        # print("old strPre: " + str(old_strPre))
-        # print("new strPre: " + str(new_strPre))
+        
         namePare = patternPare.findall(new_strPre)
-        # print("namePare: " + str(namePare))
         PredicateList = {}
 
         for name in namePare:
