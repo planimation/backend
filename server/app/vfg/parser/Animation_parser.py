@@ -145,6 +145,11 @@ def parse_predicate(text_to_parse, result):
     temp_visual_block = text_to_parse[text_to_parse.index(pattern_predicate):]
     temp_visual_block = Parser_Functions.get_one_block(temp_visual_block)
 
+        # Use Regex to remove space between parentheses and contenst to avoid failure.
+        # Regex: (?<=[\)\w])[^\S\r\n]+(?=\)) matches spaces between '(', contents and '('
+        # Regex: (?<=[\(])[^\S\r\n]+) matches spaces between ')' and ')'
+    temp_visual_block = re.sub(r'((?<=[\)\w])[^\S\r\n]+(?=\))|(?<=[\(])[^\S\r\n]+)', '', temp_visual_block)
+
     temp_visual_pattern = re.compile(pattern_predicate + "\s[\w\-]+", re.IGNORECASE)
     temp_subshape, temp_subshape_value = temp_visual_pattern.findall(temp_visual_block)[0].split()
 
