@@ -38,10 +38,10 @@ def get_visualisation_file():
     # 	print("python main.py [dommainfile] [problemfile] [animationprofile]")
     # 	sys.exit()
     try:
-	    domain_file = sys.argv[1]
-	    problem_file = sys.argv[2]
-	    animation_file = sys.argv[3]
-	    url_link = sys.argv[4]
+        domain_file = sys.argv[1]
+        problem_file = sys.argv[2]
+        animation_file = sys.argv[3]
+        url_link = sys.argv[4]
 
         # read animation profile from json
         animation_content = open(animation_file, 'r',encoding='utf-8-sig').read()
