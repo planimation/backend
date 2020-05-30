@@ -215,27 +215,23 @@ def parse_rule(rule, require_dic):
     right_value = divide_rule.group(3)
     middle = Parser_Functions.parse_objects(left_object)
     template["left"][middle[0]] = middle[1:]
-    if "function" in rule:
-        template["value"] = parse_function(right_value, require_dic)
-    elif "(" not in right_value:
-        value_pattern = re.compile(r'\(equal\s+\([^)]+\)\s*([\d\w#-]+)\)')
-        searchValue = re.search(value_pattern, rule)
-        value = searchValue.group(1)
-        template["value"]["equal"] = value
-    elif "add" in right_value:
-        template["value"] = parse_add(right_value, require_dic)
-    elif "(" in right_value:
-        try:
+    # Handle parse error when lacking property argument
+    try:
+        if "function" in rule:
+            template["value"] = parse_function(right_value, require_dic)
+        elif "(" not in right_value:
+            value_pattern = re.compile(r'\(equal\s+\([^)]+\)\s*([\d\w#-]+)\)')
+            searchValue = re.search(value_pattern, rule)
+            value = searchValue.group(1)
+            template["value"]["equal"] = value
+        elif "add" in right_value:
+            template["value"] = parse_add(right_value, require_dic)
+        elif "(" in right_value:
             name, value = Parser_Functions.parse_objects(right_value)
-        except:
-            print("right value: ")
-            print(right_value)
-            print()
-            for i in range(len(right_value)):
-                print(right_value[i])
-            print()
-        template["value"]["equal"] = {name: value}
-        update_require(require_dic, name, value)
+            template["value"]["equal"] = {name: value}
+            update_require(require_dic, name, value)
+    except Exception as e:
+            raise Exception ("%s used in %s is %s" %(right_value, rule, str(e)))
     return template
 
 def parse_function(text, require_dic):

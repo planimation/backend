@@ -14,6 +14,7 @@
 import copy
 import os
 import sys
+import re
 
 sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/../' + "extension"))
 sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/' + "vfg/solver"))
@@ -53,8 +54,16 @@ def check_rule_complete(predicate, objects_dic, predicates_rules):
     obj_ref_dic = dict(zip(objects_list_ref, object_list))
     if "require" in predicate_rule:
         for obj_index in predicate_rule["require"]:
+            right_args = predicate_rule["require"][obj_index] 
+            if(len(right_args) == 0) : property = ""
+            elif(len(right_args) >=1) : property = right_args[0]
+            if (obj_index not in obj_ref_dic):                  # raise error when object doesn't exist
+                raise Exception("%s used in (%s, %s) doesn't exsits as an argument of predicate %s" %(obj_index,obj_index, property, pname.upper()))
             for property in predicate_rule["require"][obj_index]:
-                objectname = obj_ref_dic[obj_index]
+                objectname = obj_ref_dic[obj_index]         
+                if (property not in objects_dic[objectname]):   # raise error when object doesn't exist
+                    constructString = "(%s, %s)" %(obj_index, property)
+                    raise Exception ("'%s' used in %s doesn't exist as an argument in predicate %s" %(property, constructString, pname.upper()))
                 if objects_dic[objectname][property] is False:
                     return False
     return True
@@ -93,7 +102,24 @@ def applypredicates(predicate,
     for rulename in predicate_rule["rules"]:
         if "value" in predicate_rule[rulename]:
             rule = predicate_rule[rulename]
-            left, propertyname = get_objname_property(rule["left"], obj_ref_dic)
+
+            #raise error when the object is not defined
+            try:
+                object_index, left, propertyname = get_objname_property(rule["left"], obj_ref_dic)
+            except Exception as e:
+                (object_index, right_args) = list(rule["left"].items())[0]
+                if(len(right_args) == 0) : property = ""
+                elif(len(right_args) >=1) : property = right_args[0]
+                raise Exception("%s used in (%s, %s) is not a defined obejct at predicate %s" %(object_index, object_index, property, pname.upper()))
+
+            # raise error when property is not given correctly
+            if (propertyname == []):                                     # when property or is not given
+                construct = "(%s, )" %object_index
+                raise Exception ("%s used at predicate %s needs more arguments" %(construct, pname.upper()))
+            elif (propertyname[0] not in objects_dic[left]):             # when a wrong proterty is given
+                construct = "(%s, %s)" %(object_index,propertyname[0])
+                raise Exception ("'%s' used in %s doesn't exist as a property of %s at predicate %s" %(propertyname[0],construct, object_index, pname.upper()))
+            
             value = predicate_rule[rulename]["value"]
             if "function" in value:
                 fproperty = value["function"]
@@ -118,15 +144,14 @@ def applypredicates(predicate,
                     if "r" in right_value:  # for color
                         objects_dic[left][propertyname[0]] = right_value
                     else:
-                        right_object, right_property = get_objname_property(right_value, obj_ref_dic)
+                        object_index, right_object, right_property = get_objname_property(right_value, obj_ref_dic)
                         objects_dic[left][propertyname[0]] = objects_dic[right_object][right_property]
 
             elif "add" in value:
                 rightvalue = 0
                 for additem in value["add"]:
                     if type(additem) is dict:
-
-                        right_object, right_property = get_objname_property(additem, obj_ref_dic)
+                        r_obj_index, right_object, right_property = get_objname_property(additem, obj_ref_dic)
                         addvalue = objects_dic[right_object][right_property]
                         rightvalue += addvalue
                     else:
@@ -163,7 +188,7 @@ def get_objname_property(property_dic, obj_ref_dic):
 
     object_index, propertyname = list(property_dic.items())[0]
     objname = obj_ref_dic[object_index]
-    return objname, propertyname
+    return object_index, objname, propertyname
 
 
 def update_object(objectdic, properties, gstate, fname, result):
