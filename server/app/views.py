@@ -49,31 +49,60 @@ class LinkUploadView(APIView):
 
         # .encode('utf-8').decode('utf-8-sig') will remove the \ufeff in the string when add string as value in
         # a dictionary.
-        domain_file = request.data['domain'].encode('utf-8').decode('utf-8-sig').lower()
-        problem_file = request.data['problem'].encode('utf-8').decode('utf-8-sig').lower()
-        animation_file = request.data['animation'].encode('utf-8').decode('utf-8-sig')
+        try:
+            domain_file = request.data['domain'].encode('utf-8').decode('utf-8-sig').lower()
+        except Exception as e:
+            # for more details error template, could use:
+            # return Response({"visualStages": [], "subgoalPool": {}, "subgoalMap": {}, "transferType": 0, "imageTable": {}
+            # ,"message": str(e)})
+            return Response({"message": "Failed to open domain file \n\n " + str(e)})
+        
+        try:
+            problem_file = request.data['problem'].encode('utf-8').decode('utf-8-sig').lower()
+        except Exception as e:
+            return Response({"message": "Failed to open problem file \n\n " + str(e)})
 
-        # add url
-        if "url" in request.data:
-            url_link = request.data['url']
-        else:
-            url_link = "http://solver.planning.domains/solve"
+        try:
+            animation_file = request.data['animation'].encode('utf-8').decode('utf-8-sig')
+        except Exception as e:
+            return Response({"message": "Failed to open animation file \n\n " + str(e)})
 
-        if "plan" in request.data:
-            actions = request.data['plan'].encode('utf-8').decode('utf-8-sig').lower()
-            if "(" in actions and ")" in actions:
-                plan = Plan_generator.get_plan_actions(domain_file, actions)
+        # add url and parse to get the plan(solution)
+        try: 
+            if "url" in request.data:
+                url_link = request.data['url']
             else:
-                #If user upload the wrong action plan, use the default planner url
+                url_link = "http://solver.planning.domains/solve"
+
+            if "plan" in request.data:
+                actions = request.data['plan'].encode('utf-8').decode('utf-8-sig').lower()
+                if "(" in actions and ")" in actions:
+                    #TODO: need to raise get_plan_action error 
+                    plan = Plan_generator.get_plan_actions(domain_file, actions)
+                else:
+                    #If user upload the wrong action plan, use the default planner url
+                    plan = Plan_generator.get_plan(domain_file, problem_file, url_link)
+
+            else:
                 plan = Plan_generator.get_plan(domain_file, problem_file, url_link)
+        except Exception as e:
+            #Error arise code in in Plan_generator.py line 65 - 70
+            return Response({"message": str(e)})
+        
+        #parse task(domain, problem)
+        try:
+            predicates_list = Domain_parser.get_domain_json(domain_file)
+            problem_dic = Problem_parser.get_problem_dic(problem_file,predicates_list)
+            object_list = Problem_parser.get_object_list(problem_file)
+        except Exception as e:
+            return Response({"message": "Failed to parse the problem \n\n " + str(e)})
+        
+        #parse animation file
+        try:
+            animation_profile = json.loads(Animation_parser.get_animation_profile(animation_file,object_list))
+        except Exception as e:
+            return Response({"message": "Failed to parse the animation file \n\n " + str(e)})
 
-        else:
-            plan = Plan_generator.get_plan(domain_file, problem_file, url_link)
-        predicates_list = Domain_parser.get_domain_json(domain_file)
-        problem_dic = Problem_parser.get_problem_dic(problem_file,predicates_list)
-
-        object_list = Problem_parser.get_object_list(problem_file)
-        animation_profile = json.loads(Animation_parser.get_animation_profile(animation_file,object_list))
         stages = Predicates_generator.get_stages(plan, problem_dic, problem_file,predicates_list)
         objects_dic = Initialise.initialise_objects(stages["objects"], animation_profile)
 
@@ -113,12 +142,13 @@ class LinkUploadView(APIView):
         # # Close the file
         # myfile.close()
 
-
-        result = Solver.get_visualisation_dic(stages, animation_profile,plan['result']['plan'],problem_dic)
+        #Use animation and solution to get visualisation
+        try: 
+            result = Solver.get_visualisation_dic(stages, animation_profile,plan['result']['plan'],problem_dic)
+        except Exception as e:
+            return Response({"message": "Failed to solve the animation file \n\n " + str(e)})
 
         visualisation_file = Transfer.generate_visualisation_file(result, list(objects_dic.keys()),animation_profile,plan['result']['plan'])
-
-
         return Response(visualisation_file)
 
     

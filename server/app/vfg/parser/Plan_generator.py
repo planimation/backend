@@ -28,6 +28,7 @@ import json
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/../' ))
+sys.path.append(os.path.dirname(__file__))
 import Parser_Functions
 from action_plan_parser.parser import Problem
 #######################################################
@@ -60,8 +61,14 @@ def get_plan(domain_file, problem_file,url):
     req.add_header('Content-Length', len(json_data_as_bytes))
     response = urllib.request.urlopen(req, json_data_as_bytes)
     str_response = response.read().decode('utf-8')
+    # use http://solver.planning.domains API to get error info or solution
     plan = json.loads(str_response)
-    return plan
+    status = plan['status']
+    if status == "error" :
+        error = plan['result']['error']
+        raise Exception("Failed to get the plan/solution --  " + error)
+    else:
+        return plan
 
 
 def get_plan_actions(domain_file, actions):
