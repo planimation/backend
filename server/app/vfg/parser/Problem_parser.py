@@ -100,6 +100,41 @@ def get_state_list(predicates_pattern_dic, text_block):
     return result
 
 
+def new_get_state_list(predicates_pattern_dic, text_block):
+    """
+    This function turn all the predicate in text block into dictionary format
+    :param predicates_pattern_dic: dictionary which contain predicate name and predicate pattern pair
+    :param text_block: a text block contain list of predicates in plain text format
+    :return: return predicate list in dictionary format
+    """
+    add_result = []
+    remove_result = []
+
+    for predicate_name, predicate_pattern in predicates_pattern_dic.items():
+        pattern = "((not\\s+)?\\(" + predicate_pattern + ")"
+        temp_pattern = re.compile(pattern)
+        predicates = temp_pattern.findall(text_block)
+        if predicates:
+            for predicate in predicates:
+                if predicate[1]:
+                    flag = False
+                    predicate = re.sub(r"not\s+", "", predicate[0])
+                else:
+                    flag = True
+                    predicate = predicate[0]
+                print(predicate)
+                data_object = {"name": predicate_name.replace(" ", ""), "objectNames": []}
+                if len(predicate.split()) > 1:
+                    data_object["objectNames"].extend(predicate.split()[1:])
+                else:
+                    data_object["objectNames"] = ["No objects"]
+                if flag:
+                    add_result.append(data_object)
+                else:
+                    remove_result.append(data_object)
+    return add_result, remove_result
+
+
 def get_object_list(problem_text):
     """
     This function return the object list in problem PDDL
