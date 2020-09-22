@@ -183,7 +183,6 @@ def capture(filename, format):
     p1 = subprocess.run(["sudo", "./linux_standalone.x86_64", filename, "-batchmode", "-logfile", "stdlog"])
     if p1.returncode != 0:
         return "error"
-    subprocess.run(["chmod", ""])
     if format == "png":
         zipf = zipfile.ZipFile("planimation.zip", 'w', zipfile.ZIP_DEFLATED)
         zipdir('ScreenshotFolder', zipf)
