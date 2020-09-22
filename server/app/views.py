@@ -25,6 +25,10 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.renderers import TemplateHTMLRenderer
 
+# (Sep 22, 2020 Zhaoqi Fang import zipfile for zip pngs and httpResponse)
+import zipfile
+from django.http import HttpResponse, HttpResponseNotFound
+
 # Create your views here.
 class PDDLViewSet(viewsets.ModelViewSet):
     queryset = PDDL.objects.all()
@@ -158,3 +162,42 @@ class UserGuide(APIView):
     
     def get(self,request):
         return Response({'':""})
+
+
+class LinkDownloadPlanimation(APIView):
+    parser_classes = (MultiPartParser,)
+
+    def zipdir(self, path, ziph):
+        for root, dirs, files in os.walk(path):
+            for file in files:
+                ziph.write(os.path.join(root, file))
+
+    def post(self, request, format=None):
+        try:
+            vfg_file = request.data['vfg'].encode('utf-8').decode('utf-8-sig').lower()
+            #print(vfg_file)
+        except Exception as e:
+            return Response({"message": "Failed to open vfg file \n\n " + str(e)})
+
+        try: 
+            fileType = request.data['fileType']
+            #print(fileType)
+        except Exception as e:
+            return Response({"message": str(e)})
+        
+        # Save vfg file in order to use standalone for passing vfg
+        vfg = open("vf_out.vfg", "w")
+        vfg.write(vfg_file)
+        vfg.close()
+
+        # zip screenshotfolder
+        zipf = zipfile.ZipFile("planimation.zip", 'w', zipfile.ZIP_DEFLATED)
+        self.zipdir('ScreenshotFolder', zipf)
+        zipf.close()
+
+        try:
+            response = HttpResponse(open("planimation.zip", 'rb'), content_type='application/zip')
+            response['Content-Disposition'] = 'attachment; filename="planimation.zip"'
+        except IOError:
+            response = HttpResponseNotFound('File not exist')
+        return response
