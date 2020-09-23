@@ -187,7 +187,6 @@ def capture(filename, format):
     if pf.returncode != 0:
         return "error"
 
-    #subprocess.run(["chmod"])
     if format == "png":
         zipf = zipfile.ZipFile("planimation.zip", 'w', zipfile.ZIP_DEFLATED)
         zipdir('ScreenshotFolder', zipf)
@@ -214,26 +213,20 @@ def capture(filename, format):
         p3 = subprocess.run(["sudo", "ffmpeg", "-i", "ScreenshotFolder/buffer.mp4", "planimation.webm"])
         if p3.returncode != 0:
             return "error"
+
         pw = subprocess.run(["sudo", "chmod", "-R", "777", "planimation.webm"])
         if pw.returncode != 0:
             return "error"
-    """
+
     p4 = subprocess.run(["rm", "-rf", "ScreenshotFolder"])
     if p4.returncode != 0:
         return "error"
-    """
+
     return "planimation." + format
 
 
 class LinkDownloadPlanimation(APIView):
     parser_classes = (MultiPartParser,)
-
-    """
-    def zipdir(self, path, ziph):
-        for root, dirs, files in os.walk(path):
-            for file in files:
-                ziph.write(os.path.join(root, file))
-    """
 
     def post(self, request, format=None):
         try:
@@ -262,11 +255,16 @@ class LinkDownloadPlanimation(APIView):
             response = HttpResponseNotFound("Failed to produce files")
             return response
         try:
-            if fileType == "png":
-                fileType = "zip"
-            response = HttpResponse(open(output_name, 'rb'), content_type='application/'+fileType)
+            contentType = "application/zip"
+            if fileType == "webm":
+                contentType = "video/webm"
+            elif fileType == "gif":
+                contentType = "image/gif"
+            response = HttpResponse(open(output_name, 'rb'), content_type=contentType)
+
             response['Content-Disposition'] = 'attachment; filename="'+output_name+'"'
-            # delete = subprocess.run(["rm", "-rf", output_name])
+            delete1 = subprocess.run(["sudo", "rm", "-rf", output_name])
+            delete2 = subprocess.run(["sudo", "rm", "-rf", "vf_out.vfg"])
         except IOError:
             response = HttpResponseNotFound('File not exist')
         return response
