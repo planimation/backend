@@ -180,48 +180,38 @@ def zipdir(path, ziph):
 def capture(filename, format):
     if format != "gif" and format != "mp4" and format != "png" and format != "webm":
         return "error"
-    p1 = subprocess.run(["sudo", "./linux_standalone.x86_64", filename, "-batchmode", "-logfile", "stdout.log"])
+    p1 = subprocess.run(["./linux_build/linux_standalone.x86_64", filename, "-batchmode", "-logfile", "stdlog"])
     if p1.returncode != 0:
         return "error"
-    pf = subprocess.run(["sudo", "chmod", "-R", "777", "ScreenshotFolder/", "stdout.log"])
-    if pf.returncode != 0:
-        return "error"
-
     if format == "png":
         zipf = zipfile.ZipFile("planimation.zip", 'w', zipfile.ZIP_DEFLATED)
         zipdir('ScreenshotFolder', zipf)
-        pz = subprocess.run(["sudo", "chmod", "-R", "777", "planimation.zip"])
-        if pz.returncode != 0:
-            return "error"
         zipf.close()
         format = "zip"
-    elif (format == "mp4") or (format == "gif"):
-        p2 = subprocess.run(["sudo", "ffmpeg", "-framerate", "2", "-i", "ScreenshotFolder/shot%d.png", "planimation." + format])
+    elif format == "mp4":
+        p2 = subprocess.run(["ffmpeg", "-framerate", "2", "-i", "ScreenshotFolder/shot%d.png", "planimation." + format])
         if p2.returncode != 0:
             return "error"
-        pd = subprocess.run(["sudo", "chmod", "-R", "777", "planimation." + format])
-        if pd.returncode != 0:
+    elif format == "gif":
+        # p2 = subprocess.run(["ffmpeg", "-framerate", "2", "-i", "ScreenshotFolder/shot%d.png", "planimation." + format])
+
+        p2 = subprocess.run(["ffmpeg", "-framerate", "2", "-i", "ScreenshotFolder/shot%d.png", "-vf",
+                             "scale=640:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse",
+                             "planimation." + format])
+
+        if p2.returncode != 0:
             return "error"
     else:
-        p2 = subprocess.run(["sudo", "ffmpeg", "-framerate", "2", "-i", "ScreenshotFolder/shot%d.png",
+        p2 = subprocess.run(["ffmpeg", "-framerate", "2", "-i", "ScreenshotFolder/shot%d.png",
                              "ScreenshotFolder/buffer.mp4"])
         if p2.returncode != 0:
             return "error"
-        pb = subprocess.run(["sudo", "chmod", "-R", "777", "ScreenshotFolder/buffer.mp4"])
-        if pb.returncode != 0:
-            return "error"
-        p3 = subprocess.run(["sudo", "ffmpeg", "-i", "ScreenshotFolder/buffer.mp4", "planimation.webm"])
+        p3 = subprocess.run(["ffmpeg", "-i", "ScreenshotFolder/buffer.mp4", "planimation.webm"])
         if p3.returncode != 0:
             return "error"
-
-        pw = subprocess.run(["sudo", "chmod", "-R", "777", "planimation.webm"])
-        if pw.returncode != 0:
-            return "error"
-
     p4 = subprocess.run(["rm", "-rf", "ScreenshotFolder"])
     if p4.returncode != 0:
         return "error"
-
     return "planimation." + format
 
 
@@ -231,22 +221,17 @@ class LinkDownloadPlanimation(APIView):
     def post(self, request, format=None):
         try:
             vfg_file = request.data['vfg'].encode('utf-8').decode('utf-8-sig')
-            # print(vfg_file)
         except Exception as e:
             return Response({"message": "Failed to open vfg file \n\n " + str(e)})
 
         try:
             fileType = request.data['fileType']
-            # print(fileType)
         except Exception as e:
             return Response({"message": str(e)})
 
         # Save vfg file in order to use standalone for passing vfg
         vfg = open("vf_out.vfg", "w")
         vfg.write(vfg_file)
-        pv = subprocess.run(["sudo", "chmod", "-R", "777", "vf_out.vfg"])
-        if pv.returncode != 0:
-            return "error"
         vfg.close()
 
         # Process vfg to output files in desired format
@@ -255,16 +240,12 @@ class LinkDownloadPlanimation(APIView):
             response = HttpResponseNotFound("Failed to produce files")
             return response
         try:
-            contentType = "application/zip"
-            if fileType == "webm":
-                contentType = "video/webm"
-            elif fileType == "gif":
-                contentType = "image/gif"
-            response = HttpResponse(open(output_name, 'rb'), content_type=contentType)
-
+            if fileType == "png":
+                fileType = "zip"
+            response = HttpResponse(open(output_name, 'rb'), content_type='application/'+fileType)
             response['Content-Disposition'] = 'attachment; filename="'+output_name+'"'
-            delete1 = subprocess.run(["sudo", "rm", "-rf", output_name])
-            delete2 = subprocess.run(["sudo", "rm", "-rf", "vf_out.vfg"])
+            delete1 = subprocess.run(["rm", "-rf", output_name])
+            delete2 = subprocess.run(["rm", "-rf", "vf_out.vfg"])
         except IOError:
             response = HttpResponseNotFound('File not exist')
         return response
