@@ -180,7 +180,7 @@ def zipdir(path, ziph):
 def capture(filename, format):
     if format != "gif" and format != "mp4" and format != "png" and format != "webm":
         return "error"
-    p1 = subprocess.run(["sudo", "./linux_standalone.x86_64", filename, "-batchmode", "-logfile", "stdlog"])
+    p1 = subprocess.run(["./linux_build/linux_standalone.x86_64", filename, "-batchmode", "-logfile", "stdlog"])
     if p1.returncode != 0:
         return "error"
     if format == "png":
@@ -200,34 +200,23 @@ def capture(filename, format):
         p3 = subprocess.run(["ffmpeg", "-i", "ScreenshotFolder/buffer.mp4", "planimation.webm"])
         if p3.returncode != 0:
             return "error"
-    """
     p4 = subprocess.run(["rm", "-rf", "ScreenshotFolder"])
     if p4.returncode != 0:
         return "error"
-    """
     return "planimation." + format
 
 
 class LinkDownloadPlanimation(APIView):
     parser_classes = (MultiPartParser,)
 
-    """
-    def zipdir(self, path, ziph):
-        for root, dirs, files in os.walk(path):
-            for file in files:
-                ziph.write(os.path.join(root, file))
-    """
-
     def post(self, request, format=None):
         try:
-            vfg_file = request.data['vfg'].encode('utf-8').decode('utf-8-sig').lower()
-            # print(vfg_file)
+            vfg_file = request.data['vfg'].encode('utf-8').decode('utf-8-sig')
         except Exception as e:
             return Response({"message": "Failed to open vfg file \n\n " + str(e)})
 
         try:
             fileType = request.data['fileType']
-            # print(fileType)
         except Exception as e:
             return Response({"message": str(e)})
 
@@ -246,7 +235,8 @@ class LinkDownloadPlanimation(APIView):
                 fileType = "zip"
             response = HttpResponse(open(output_name, 'rb'), content_type='application/'+fileType)
             response['Content-Disposition'] = 'attachment; filename="'+output_name+'"'
-            # delete = subprocess.run(["rm", "-rf", output_name])
+            delete1 = subprocess.run(["rm", "-rf", output_name])
+            delete2 = subprocess.run(["rm", "-rf", "vf_out.vfg"])
         except IOError:
             response = HttpResponseNotFound('File not exist')
         return response
