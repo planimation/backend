@@ -1,0 +1,4 @@
+Set current directory to /home/xiukei/comp90082/newBack/backend/server/linux_build
+Found path: /home/xiukei/comp90082/newBack/backend/server/linux_build/linux_standalone.x86_64
+Unable to load mono library from /home/xiukei/comp90082/newBack/backend/server/linux_build/linux_standalone_Data/MonoBleedingEdge/x86_64/libmonobdwgc-2.0.so
+Failed to load mono
