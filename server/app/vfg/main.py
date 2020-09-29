@@ -56,7 +56,7 @@ def get_visualisation_file():
         problem_dic = parser.Problem_parser.get_problem_dic(problem_content, predicates_list)
         object_list = parser.Problem_parser.get_object_list(problem_content)
         animation_profile = json.loads(parser.Animation_parser.get_animation_profile(animation_content, object_list))
-        stages = parser.Predicates_generator.get_stages(plan, problem_dic, problem_content,
+        stages = parser.Predicates_generator.new_get_stages(plan, problem_dic, problem_content,
                                                         predicates_list)
 
         result = solver.Solver.get_visualisation_dic(stages, animation_profile, plan['result']['plan'], problem_dic)
