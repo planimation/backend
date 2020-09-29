@@ -103,7 +103,7 @@ class LinkUploadView(APIView):
         except Exception as e:
             return Response({"message": "Failed to parse the animation file \n\n " + str(e)})
 
-        stages = Predicates_generator.get_stages(plan, problem_dic, problem_file,predicates_list)
+        stages = Predicates_generator.new_get_stages(plan, problem_dic, problem_file,predicates_list)
         objects_dic = Initialise.initialise_objects(stages["objects"], animation_profile)
 
 
