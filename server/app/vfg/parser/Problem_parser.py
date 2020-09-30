@@ -100,12 +100,14 @@ def get_state_list(predicates_pattern_dic, text_block):
     return result
 
 
-def new_get_state_list(predicates_pattern_dic, text_block):
+def get_separate_state_list(predicates_pattern_dic, text_block):
     """
-    This function turn all the predicate in text block into dictionary format
+    This function turn all the predicate in text block into dictionary format 
+    and separate them into two list according to their predicate params
     :param predicates_pattern_dic: dictionary which contain predicate name and predicate pattern pair
     :param text_block: a text block contain list of predicates in plain text format
-    :return: return predicate list in dictionary format
+    :return add_result: predicate lists in dictionary format that will be added
+    :return remove_result: predicate lists in dictionary format that will be removed
     """
     add_result = []
     remove_result = []
