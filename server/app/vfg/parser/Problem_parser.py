@@ -119,18 +119,18 @@ def get_separate_state_list(predicates_pattern_dic, text_block):
         if predicates:
             for predicate in predicates:
                 if predicate[1]:
-                    flag = False
+                    negated = False
                     predicate = re.sub(r"not\s+", "", predicate[0])
                 else:
-                    flag = True
+                    negated = True
                     predicate = predicate[0]
-                print(predicate)
+
                 data_object = {"name": predicate_name.replace(" ", ""), "objectNames": []}
                 if len(predicate.split()) > 1:
                     data_object["objectNames"].extend(predicate.split()[1:])
                 else:
                     data_object["objectNames"] = ["No objects"]
-                if flag:
+                if negated:
                     add_result.append(data_object)
                 else:
                     remove_result.append(data_object)
