@@ -158,6 +158,27 @@ class LinkUploadView(APIView):
 
         visualisation_file = Transfer.generate_visualisation_file(result, list(objects_dic.keys()), animation_profile,
                                                                   plan['result']['plan'])
+        if 'fileType' in request.data:
+            output_format = request.data['fileType']
+            if output_format != "vfg":
+                vfg = open("vf_out.vfg", "w")
+                vfg.write(json.dumps(visualisation_file))
+                vfg.close()
+                # Process vfg to output files in desired format
+                output_name = capture("vf_out.vfg", output_format)
+                if output_name == "error":
+                    response = HttpResponseNotFound("Failed to produce files")
+                    return response
+                try:
+                    if output_format == "png":
+                        output_format = "zip"
+                    response = HttpResponse(open(output_name, 'rb'), content_type='application/' + output_format)
+                    response['Content-Disposition'] = 'attachment; filename="' + output_name + '"'
+                    delete1 = subprocess.run(["rm", "-rf", output_name])
+                    delete2 = subprocess.run(["rm", "-rf", "vf_out.vfg"])
+                except IOError:
+                    response = HttpResponseNotFound("File doesn't exist")
+                return response
         return Response(visualisation_file)
 
 
@@ -189,7 +210,9 @@ def capture(filename, format):
         zipf.close()
         format = "zip"
     elif format == "mp4":
-        p2 = subprocess.run(["ffmpeg", "-framerate", "2", "-i", "ScreenshotFolder/shot%d.png", "planimation." + format])
+        # p2 = subprocess.run(["ffmpeg", "-framerate", "2", "-i", "ScreenshotFolder/shot%d.png", "planimation." + format])
+        p2 = subprocess.run(["ffmpeg", "-framerate", "2", "-i", "ScreenshotFolder/shot%d.png", "-c:v", "libx264", "-vf",
+                             "fps=25", "-pix_fmt", "yuv420p", "planimation." + format])
         if p2.returncode != 0:
             return "error"
     elif format == "gif":
@@ -225,7 +248,7 @@ class LinkDownloadPlanimation(APIView):
             return Response({"message": "Failed to open vfg file \n\n " + str(e)})
 
         try:
-            fileType = request.data['fileType']
+            output_format = request.data['fileType']
         except Exception as e:
             return Response({"message": str(e)})
 
@@ -235,15 +258,15 @@ class LinkDownloadPlanimation(APIView):
         vfg.close()
 
         # Process vfg to output files in desired format
-        output_name = capture("vf_out.vfg", fileType)
+        output_name = capture("vf_out.vfg", output_format)
         if output_name == "error":
             response = HttpResponseNotFound("Failed to produce files")
             return response
         try:
-            if fileType == "png":
-                fileType = "zip"
-            response = HttpResponse(open(output_name, 'rb'), content_type='application/'+fileType)
-            response['Content-Disposition'] = 'attachment; filename="'+output_name+'"'
+            if output_format == "png":
+                output_format = "zip"
+            response = HttpResponse(open(output_name, 'rb'), content_type='application/' + output_format)
+            response['Content-Disposition'] = 'attachment; filename="' + output_name + '"'
             delete1 = subprocess.run(["rm", "-rf", output_name])
             delete2 = subprocess.run(["rm", "-rf", "vf_out.vfg"])
         except IOError:
