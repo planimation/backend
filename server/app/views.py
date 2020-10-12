@@ -31,7 +31,7 @@ from rest_framework.renderers import TemplateHTMLRenderer
 import zipfile
 from django.http import HttpResponse, HttpResponseNotFound
 
-# Oct 12 import image
+#(Oct 12, 2020 Changyuan Liu import for download single png)
 import re
 import shutil
 
