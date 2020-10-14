@@ -11,6 +11,7 @@ import Predicates_generator  # Step3: manipulate the predicate for each step/sta
 import Transfer  # Step4. use the animation profile and stages from step3 to get the visualisation file
 import Animation_parser
 import Domain_parser
+import Parser_Functions
 import Solver
 import Initialise
 import json
@@ -67,6 +68,13 @@ class LinkUploadView(APIView):
         except Exception as e:
             return Response({"message": "Failed to open animation file \n\n " + str(e)})
 
+        try:
+            domain_file = Parser_Functions.comment_filter(domain_file)
+            problem_file = Parser_Functions.comment_filter(problem_file)
+            animation_file = Parser_Functions.comment_filter(animation_file)
+        except Exception as e:
+            return Response({"message": "Failed to filter comments \n\n " + str(e)})
+
         # add url and parse to get the plan(solution)
         try: 
             if "url" in request.data:
@@ -103,8 +111,11 @@ class LinkUploadView(APIView):
         except Exception as e:
             return Response({"message": "Failed to parse the animation file \n\n " + str(e)})
 
-        stages = Predicates_generator.get_stages(plan, problem_dic, problem_file,predicates_list)
-        objects_dic = Initialise.initialise_objects(stages["objects"], animation_profile)
+        try:
+            stages = Predicates_generator.get_stages(plan, problem_dic, problem_file,predicates_list)
+            objects_dic = Initialise.initialise_objects(stages["objects"], animation_profile)
+        except Exception as e:
+            return Response({"message": "Failed to generate stages \n\n " + str(e)})
 
 
         # for testing
@@ -148,7 +159,10 @@ class LinkUploadView(APIView):
         except Exception as e:
             return Response({"message": "Failed to solve the animation file \n\n " + str(e)})
 
-        visualisation_file = Transfer.generate_visualisation_file(result, list(objects_dic.keys()),animation_profile,plan['result']['plan'])
+        try:
+            visualisation_file = Transfer.generate_visualisation_file(result, list(objects_dic.keys()),animation_profile,plan['result']['plan'])
+        except Exception as e:
+            return Response({"message": "Failed to generate visualisation file \n\n " + str(e)})
         return Response(visualisation_file)
 
     

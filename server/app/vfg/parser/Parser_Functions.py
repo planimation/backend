@@ -103,3 +103,14 @@ def remove_bracket(text):
     :return: return text content between the "(" and ")"
     """
     return text[1:len(text) - 1]
+
+
+def comment_filter(text):
+    lines = []
+    for l in text.split('\n'):
+        loc = l.find(';')
+        if loc == -1:
+            lines.append(l)
+        elif loc > 0:
+            lines.append(l[:loc])
+    return '\n'.join(lines)
