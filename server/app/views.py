@@ -95,7 +95,7 @@ class LinkUploadView(APIView):
                 plan = Plan_generator.get_plan(domain_file, problem_file, url_link)
         except Exception as e:
             #Error arise code in in Plan_generator.py line 65 - 70
-            return Response({"message": str(e)})
+            return Response({"message": "The process ends with an exception \n\n " + str(e)})
         
         #parse task(domain, problem)
         try:
