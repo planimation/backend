@@ -1,6 +1,6 @@
 ## Unit test
 
-The unit test can be running with the command:
+The unit tests can be run with the command:
 ```
 python -m unittest test_cases
 ```
