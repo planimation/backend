@@ -176,7 +176,7 @@ class LinkUploadView(APIView):
                 try:
                     if output_format == "png":
                         output_format = "zip"
-                    elif output_format == "spng":
+                    elif output_format == "lpng" or output_format == "fpng":
                     	output_format = "png"
                     response = HttpResponse(open(output_name, 'rb'), content_type='application/' + output_format)
                     response['Content-Disposition'] = 'attachment; filename="' + output_name + '"'
@@ -202,20 +202,23 @@ def zipdir(path, ziph):
             ziph.write(os.path.join(root, file))
 
 # helper function to downlaod single png
-def imgdir(path):
-	for root,dirs,files in os.walk(path):
-		fileLen =len(files)
-		for file in files:
-			if(int(re.search(r'\d+',file)[0])==fileLen):
-				print(file)
-				shutil.copy(os.path.join(root,file),"planimation.png")
-
+def imgdir(path, format):
+    for root, dirs, files in os.walk(path):
+        if format == "fpng":
+            shutil.copy(os.path.join(root,"shot1.png"), "planimation.png")
+            return None
+        fileLen = len(files)
+        for file in files:
+            if (int(re.search(r'\d+',file)[0])==fileLen):
+                print(file)
+                shutil.copy(os.path.join(root,file),"planimation.png")
 
 # Helper function to capture images and convert to desired format
 # Xinzhe Li 22/09/2020
 
 def capture(filename, format):
-    if format != "gif" and format != "mp4" and format != "png" and format != "webm" and format !="spng":
+    # fpng stands for the first png in a sequence and lpng stands for the last
+    if format != "gif" and format != "mp4" and format != "png" and format != "webm" and format !="lpng" and format !="fpng":
         return "error"
     p1 = subprocess.run(["./linux_build/linux_standalone.x86_64", filename, "-batchmode", "-logfile", "stdlog"])
     if p1.returncode != 0:
@@ -225,11 +228,9 @@ def capture(filename, format):
         zipdir('ScreenshotFolder', zipf)
         zipf.close()
         format = "zip"
-    elif format == "spng":
-
-    	imgdir('ScreenshotFolder')
+    elif format == "lpng" or format == "fpng":
+    	imgdir('ScreenshotFolder', format)
     	format = "png"
-    	
     elif format == "mp4":
         # p2 = subprocess.run(["ffmpeg", "-framerate", "2", "-i", "ScreenshotFolder/shot%d.png", "planimation." + format])
         p2 = subprocess.run(["ffmpeg", "-framerate", "2", "-i", "ScreenshotFolder/shot%d.png", "-c:v", "libx264", "-vf",
