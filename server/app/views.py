@@ -220,7 +220,7 @@ def capture(filename, format):
     # fpng stands for the first png in a sequence and lpng stands for the last
     if format != "gif" and format != "mp4" and format != "png" and format != "webm" and format !="lpng" and format !="fpng":
         return "error"
-    p1 = subprocess.run(["./linux_build/linux_standalone.x86_64", filename, "-batchmode", "-logfile", "stdlog"])
+    p1 = subprocess.run(["xvfb-run", "-a", "-s", "-screen 0 1024x768x24", "./linux_build/linux_standalone.x86_64", filename, "-batchmode", "-logfile", "stdlog"])
     if p1.returncode != 0:
         return "error"
     if format == "png":
