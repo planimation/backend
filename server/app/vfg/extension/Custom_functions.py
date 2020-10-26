@@ -423,12 +423,12 @@ def distribute_within_objects_horizontal(obj_list, settings, state, remove, get_
     """
 
     #zmff
-    print("obj_list: " + str(obj_list))
-    print("settings: " + str(settings))
-    print("state: " + str(state))
-    print("remove: " + str(remove))
-    print("get_meta: " + str(get_meta))
-    print()
+    #print("obj_list: " + str(obj_list))
+    #print("settings: " + str(settings))
+    #print("state: " + str(state))
+    #print("remove: " + str(remove))
+    #print("get_meta: " + str(get_meta))
+    #print()
 
     if get_meta:
         meta = {}
