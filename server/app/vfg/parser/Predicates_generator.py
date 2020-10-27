@@ -29,7 +29,6 @@ sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 import Problem_parser
 
 
-
 def get_stages(plan, problem_dic, problem_file, predicates_list):
     """
     The function is to get the list of steps for Step3 to use
@@ -55,7 +54,7 @@ def get_stages(plan, problem_dic, problem_file, predicates_list):
     action_effect_list = get_action_effect_list(actionlist)
 
     # Final result structure
-    content = {"stages": [], "objects": objects,"subgoals":[]}
+    content = {"stages": [], "objects": objects, "subgoals": []}
 
     # Adding initial stage
     content['stages'].append({
@@ -64,13 +63,10 @@ def get_stages(plan, problem_dic, problem_file, predicates_list):
         "remove": "",
         "stageName": "Initial Stage",
         "stageInfo": "No Step Information"
-        })
-
-
+    })
 
     for counter in range(len(actionlist)):
-        newpredicate_list = Problem_parser.get_state_list(predicates_list, action_effect_list[counter])
-
+        add_predicate_list, remove_predicate_list = Problem_parser.get_separate_state_list(predicates_list, action_effect_list[counter])
 
         # For testing
         # if counter ==0:
@@ -89,14 +85,12 @@ def get_stages(plan, problem_dic, problem_file, predicates_list):
         #     myfile.close()
 
         # 1. Find the difference between 2 steps
-        add_predicate_list = []
-        remove_predicate_list = []
-        for predicate in newpredicate_list:
-
+        for predicate in add_predicate_list:
             if predicate in stages:
-                remove_predicate_list.append(predicate)
-            else:
-                add_predicate_list.append(predicate)
+                add_predicate_list.remove(predicate)
+        for predicate in remove_predicate_list:
+            if predicate not in stages:
+                remove_predicate_list.remove(predicate)
 
         # Append the list to get the final result
         for add_predicate in add_predicate_list:
@@ -126,7 +120,6 @@ def get_stages(plan, problem_dic, problem_file, predicates_list):
         content['stages'].append(result)
 
     return content
-
 
 
 def get_action_effect_list(action_list):
