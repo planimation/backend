@@ -318,10 +318,12 @@ def solve_all_stages(stages, objects_dic, predicates_rules, gstate, actionlist, 
         if "stageName" not in stage:
             stage_dic["stageName"] = "Inital Stage"
             stage_dic["stageInfo"] = "No step information"
+            stage_dic["cost"] = "No cost"
 
         else:
             stage_dic["stageName"] = stage["stageName"]
             stage_dic["stageInfo"] = stage["stageInfo"]
+            stage_dic["cost"] = stage["cost"]
 
         result["visualStages"].append(stage_dic)
 

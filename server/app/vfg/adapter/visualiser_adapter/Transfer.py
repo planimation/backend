@@ -16,6 +16,7 @@ import sys
 
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 import Subgoal_adapter
+import math
 
 
 def generate_visualisation_file(result, object_list, animation_profile, action_list):
@@ -38,6 +39,16 @@ def generate_visualisation_file(result, object_list, animation_profile, action_l
         transfered_stage = transfer(one_stage, object_list, panel_size, shift)
         transfered_stage["stageName"] = item["stageName"]
         transfered_stage["stageInfo"] = item["stageInfo"]
+        if (index == 0):
+            transfered_stage["stepCost"] = "no step cost"
+            transfered_stage["totalCost"] = "no total cost"
+        else:
+            if (action_list[index-1]["traverse-cost"] == math.inf):
+                transfered_stage["stepCost"] = "no step cost"
+                transfered_stage["totalCost"] = "no total cost"
+            else:
+                transfered_stage["stepCost"] = action_list[index-1]["traverse-cost"]
+                transfered_stage["totalCost"] = action_list[index-1]["total-cost"]
         if (index == len(action_list)):
             transfered_stage["isFinal"] = "true"
         else:

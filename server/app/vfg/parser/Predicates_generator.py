@@ -62,7 +62,8 @@ def get_stages(plan, problem_dic, problem_file, predicates_list):
         "add": "",
         "remove": "",
         "stageName": "Initial Stage",
-        "stageInfo": "No Step Information"
+        "stageInfo": "No Step Information",
+        "cost": "No cost"
     })
 
     for counter in range(len(actionlist)):
@@ -115,6 +116,7 @@ def get_stages(plan, problem_dic, problem_file, predicates_list):
                   "remove": remove_predicate_list,
                   "stageName": action_name,
                   "stageInfo": step_info,
+                  "cost": "No cost"
                   }
 
         content['stages'].append(result)
