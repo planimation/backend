@@ -321,7 +321,7 @@ class TestStringMethods(unittest.TestCase):
         obj_ref_dic = {'?x': 'obj1'}
         expected_obj_name_prop = ('?x', 'obj1', ['property1', 'property2'])
         obj_name_prop = Solver.get_objname_property(property_dic, obj_ref_dic)
-        
+
         # Check that the generated object is the same as the expected output
         self.assertTrue(expected_obj_name_prop == obj_name_prop
             , msg="The generated object is different from the expected output")
