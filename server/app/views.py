@@ -220,13 +220,14 @@ def capture(filename, format):
     # fpng stands for the first png in a sequence and lpng stands for the last
     if format != "gif" and format != "mp4" and format != "png" and format != "webm" and format !="lpng" and format !="fpng":
         return "error"
-    p1 = subprocess.run(["xvfb-run", "-a", "-s", "-screen 0 1024x768x24", "./linux_build/linux_standalone.x86_64", filename, "-batchmode", "-logfile", "stdlog"])
+    p1 = subprocess.run(["sudo", "xvfb-run", "-a", "-s", "-screen 0 640x480x24", "./linux_build/linux_standalone.x86_64", filename, "-logfile", "stdlog", "-screen-fullscreen", "0", "-screen-width", "640", "-screen-height", "480"])
     if p1.returncode != 0:
         return "error"
     if format == "png":
         zipf = zipfile.ZipFile("planimation.zip", 'w', zipfile.ZIP_DEFLATED)
         zipdir('ScreenshotFolder', zipf)
         zipf.close()
+        #pz = subprocess.run(["zip", "-r", "planimation.zip", "/ScreenshotFolder"])
         format = "zip"
     elif format == "lpng" or format == "fpng":
     	imgdir('ScreenshotFolder', format)
