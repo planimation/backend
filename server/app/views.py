@@ -13,6 +13,7 @@ import Predicates_generator  # Step3: manipulate the predicate for each step/sta
 import Transfer  # Step4. use the animation profile and stages from step3 to get the visualisation file
 import Animation_parser
 import Domain_parser
+import Parser_Functions
 import Solver
 import Initialise
 import json
@@ -80,6 +81,13 @@ class LinkUploadView(APIView):
         except Exception as e:
             return Response({"message": "Failed to open animation file \n\n " + str(e)})
 
+        try:
+            domain_file = Parser_Functions.comment_filter(domain_file)
+            problem_file = Parser_Functions.comment_filter(problem_file)
+            animation_file = Parser_Functions.comment_filter(animation_file)
+        except Exception as e:
+            return Response({"message": "Failed to filter comments \n\n " + str(e)})
+
         # add url and parse to get the plan(solution)
         try:
             if "url" in request.data:
@@ -99,10 +107,11 @@ class LinkUploadView(APIView):
             else:
                 plan = Plan_generator.get_plan(domain_file, problem_file, url_link)
         except Exception as e:
-            # Error arise code in in Plan_generator.py line 65 - 70
-            return Response({"message": str(e)})
+            #Error arise code in Plan_generator.py line 65 - 70
+            return Response({"message": "The process ends with an exception \n\n " + str(e)})
+        
+        #parse task(domain, problem)
 
-        # parse task(domain, problem)
         try:
             predicates_list = Domain_parser.get_domain_json(domain_file)
             problem_dic = Problem_parser.get_problem_dic(problem_file, predicates_list)
@@ -116,8 +125,11 @@ class LinkUploadView(APIView):
         except Exception as e:
             return Response({"message": "Failed to parse the animation file \n\n " + str(e)})
 
-        stages = Predicates_generator.get_stages(plan, problem_dic, problem_file, predicates_list)
-        objects_dic = Initialise.initialise_objects(stages["objects"], animation_profile)
+        try:
+            stages = Predicates_generator.get_stages(plan, problem_dic, problem_file,predicates_list)
+            objects_dic = Initialise.initialise_objects(stages["objects"], animation_profile)
+        except Exception as e:
+            return Response({"message": "Failed to generate stages \n\n " + str(e)})
 
         # for testing
         #  myfile = open('plan', 'w')
@@ -160,32 +172,35 @@ class LinkUploadView(APIView):
         except Exception as e:
             return Response({"message": "Failed to solve the animation file \n\n " + str(e)})
 
-        visualisation_file = Transfer.generate_visualisation_file(result, list(objects_dic.keys()), animation_profile,
-                                                                  plan['result']['plan'])
-        if 'fileType' in request.data:
-            output_format = request.data['fileType']
-            if output_format != "vfg":
-                vfg = open("vf_out.vfg", "w")
-                vfg.write(json.dumps(visualisation_file))
-                vfg.close()
-                # Process vfg to output files in desired format
-                output_name = capture("vf_out.vfg", output_format)
-                if output_name == "error":
-                    response = HttpResponseNotFound("Failed to produce files")
+        try:
+            visualisation_file = Transfer.generate_visualisation_file(result, list(objects_dic.keys()), animation_profile,
+                                                                      plan['result']['plan'])
+            if 'fileType' in request.data:
+                output_format = request.data['fileType']
+                if output_format != "vfg":
+                    vfg = open("vf_out.vfg", "w")
+                    vfg.write(json.dumps(visualisation_file))
+                    vfg.close()
+                    # Process vfg to output files in desired format
+                    output_name = capture("vf_out.vfg", output_format)
+                    if output_name == "error":
+                        response = HttpResponseNotFound("Failed to produce files")
+                        return response
+                    try:
+                        if output_format == "png":
+                            output_format = "zip"
+                        elif output_format == "lpng" or output_format == "fpng":
+                            output_format = "png"
+                        response = HttpResponse(open(output_name, 'rb'), content_type='application/' + output_format)
+                        response['Content-Disposition'] = 'attachment; filename="' + output_name + '"'
+                        delete1 = subprocess.run(["rm", "-rf", output_name])
+                        delete2 = subprocess.run(["rm", "-rf", "vf_out.vfg"])
+                    except IOError:
+                        response = HttpResponseNotFound("File doesn't exist")
                     return response
-                try:
-                    if output_format == "png":
-                        output_format = "zip"
-                    elif output_format == "lpng" or output_format == "fpng":
-                    	output_format = "png"
-                    response = HttpResponse(open(output_name, 'rb'), content_type='application/' + output_format)
-                    response['Content-Disposition'] = 'attachment; filename="' + output_name + '"'
-                    delete1 = subprocess.run(["rm", "-rf", output_name])
-                    delete2 = subprocess.run(["rm", "-rf", "vf_out.vfg"])
-                except IOError:
-                    response = HttpResponseNotFound("File doesn't exist")
-                return response
-        return Response(visualisation_file)
+            return Response(visualisation_file)
+        except Exception as e:
+            return Response({"message": "Failed to generate visualisation file \n\n " + str(e)})
 
 
 class UserGuide(APIView):
