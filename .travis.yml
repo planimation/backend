@@ -10,6 +10,7 @@ services:
   - docker
 before_script: 
   - pip install docker-compose
+  - pip install -r server/requirements.txt
 jobs:
   include:
     - stage: "Build docker image"
