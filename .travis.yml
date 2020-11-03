@@ -17,3 +17,6 @@ jobs:
       if: branch = develop
       script: 
         - python -m unittest server/unit_test/test_cases.py
+        - docker build -t $IMAGE_TAG -f $DOCKER_PATH $BACKEND_PATH
+        - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+        - docker push $IMAGE_TAG

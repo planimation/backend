@@ -137,7 +137,7 @@ class TestStringMethods(unittest.TestCase):
         complex_expected_predicates = {'on': 2, 'ontable': 1, 'clear': 1, 'handempty': 0, 'holding' : 1}
 
         # Check that the generated complex predicates list is the same as the expected list
-        self.assertTrue(complex_predicates_list != complex_expected_predicates
+        self.assertTrue(complex_predicates_list == complex_expected_predicates
             , msg="The generated complex predicates list is different from the expected list")
 
 
