@@ -23,21 +23,27 @@ Latest Development Build Status
     sudo apt install gdebi-core wget
     ```
 
-    2. WGET ***libxfont*** and ***xvfb*** packages
+    2. Remove existing ***xvfb*** package (if any)
+    
+    ```Shell
+    sudo apt purge xvfb
+    ```
+    
+    3. WGET ***libxfont*** and ***xvfb*** packages (newer versions of ***xvfb*** may cause incompatibility issues)
 
     ```Shell
     sudo wget http://security.ubuntu.com/ubuntu/pool/main/libx/libxfont/libxfont1_1.5.1-1ubuntu0.16.04.4_amd64.deb
-    sudo wget http://security.ubuntu.com/ubuntu/pool/universe/x/xorg-server/xvfb_1.18.4-0ubuntu0.10_amd64.deb
+    sudo wget http://security.ubuntu.com/ubuntu/pool/universe/x/xorg-server/xvfb_1.18.4-0ubuntu0.11_amd64.deb
     ```
 
-    3. Install ***libxfont*** and ***xvfb*** packages
+    4. Install ***libxfont*** and ***xvfb*** packages
 
     ```Shell
     sudo gdebi libxfont1_1.5.1-1ubuntu0.16.04.4_amd64.deb
-    sudo gdebi xvfb_1.18.4-0ubuntu0.10_amd64.deb
+    sudo gdebi xvfb_1.18.4-0ubuntu0.11_amd64.deb
     ```
 
-- Install ffmpeg for image format exchange
+- Install ffmpeg for image format conversion
 
     ```Shell
     sudo apt-get update
