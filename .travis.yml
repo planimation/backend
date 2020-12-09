@@ -10,8 +10,13 @@ services:
   - docker
 before_script: 
   - pip install docker-compose
+  - pip install -r server/requirements.txt
 jobs:
   include:
+    - stage: "Unit testing"
+      if: branch = develop
+      script: 
+        - python -m unittest server/unit_test/test_cases.py
     - stage: "Build docker image"
       if: branch = develop
       script: 
