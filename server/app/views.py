@@ -7,6 +7,7 @@ sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/' + "vfg/solver"))
 sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/' + "vfg/parser"))
 sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/' + "vfg/adapter"))
 sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/' + "vfg/adapter/visualiser_adapter"))
+sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/' + "media_export"))
 import Plan_generator  # Step1: get plan from planning domain api
 import Problem_parser  # Step2: parse problem pddl, to get the inital and goal stage
 import Predicates_generator  # Step3: manipulate the predicate for each step/stage
@@ -17,6 +18,7 @@ import Parser_Functions
 import Solver
 import Initialise
 import json
+import Media_exporter
 # Create your views here.
 
 from app.models import PDDL
@@ -30,7 +32,7 @@ from rest_framework.renderers import TemplateHTMLRenderer
 
 # (Sep 22, 2020 Zhaoqi Fang import zipfile for zip pngs and httpResponse)
 import zipfile
-from django.http import HttpResponse, HttpResponseNotFound
+from django.http import HttpResponse, HttpResponseNotFound, FileResponse
 
 #(Oct 12, 2020 Changyuan Liu import for download single png)
 import re
@@ -231,7 +233,7 @@ def imgdir(path, format):
 # Helper function to capture images and convert to desired format
 # Xinzhe Li 22/09/2020
 
-def capture(filename, format):
+def capture(filename, format, parameters=None):
     # fpng stands for the first png in a sequence and lpng stands for the last
     if format != "gif" and format != "mp4" and format != "png" and format != "webm" and format !="lpng" and format !="fpng":
         return "error"
@@ -249,10 +251,12 @@ def capture(filename, format):
     	format = "png"
     elif format == "mp4":
         # p2 = subprocess.run(["ffmpeg", "-framerate", "2", "-i", "ScreenshotFolder/shot%d.png", "planimation." + format])
-        p2 = subprocess.run(["ffmpeg", "-framerate", "2", "-i", "ScreenshotFolder/shot%d.png", "-c:v", "libx264", "-vf",
-                             "fps=25", "-pix_fmt", "yuv420p", "planimation." + format])
-        if p2.returncode != 0:
+        # p2 = subprocess.run(["ffmpeg", "-framerate", "2", "-i", "ScreenshotFolder/shot%d.png", "-c:v", "libx264", "-vf",
+        #                      "fps=25", "-pix_fmt", "yuv420p", "planimation." + format])
+        p2 = Media_exporter.export_media(filename, format, parameters)
+        if p2 == "error":
             return "error"
+        return "planimation.mp4"
     elif format == "gif":
         # p2 = subprocess.run(["ffmpeg", "-framerate", "2", "-i", "ScreenshotFolder/shot%d.png", "planimation." + format])
 
@@ -281,32 +285,33 @@ class LinkDownloadPlanimation(APIView):
 
     def post(self, request, format=None):
         try:
-            vfg_file = request.data['vfg'].encode('utf-8').decode('utf-8-sig')
-        except Exception as e:
-            return Response({"message": "Failed to open vfg file \n\n " + str(e)})
+            # Parse the request data
+            data = json.loads(request.body.decode('utf-8'))
+            vfg_data = data["vfg"]
+            output_format = data.get("fileType", "")
+            parameters = data.get("params", None)
+            
+            # Save the vfg data into a file (though ideally this should be handled in memory to avoid I/O overhead)
+            with open("vf_out.vfg", "w") as vfg:
+                vfg.write(vfg_data)
 
-        try:
-            output_format = request.data['fileType']
-        except Exception as e:
-            return Response({"message": str(e)})
+            output_stream = Media_exporter.export_media("vf_out.vfg", output_format, parameters)
 
-        # Save vfg file in order to use standalone for passing vfg
-        vfg = open("vf_out.vfg", "w")
-        vfg.write(vfg_file)
-        vfg.close()
-
-        # Process vfg to output files in desired format
-        output_name = capture("vf_out.vfg", output_format)
-        if output_name == "error":
-            response = HttpResponseNotFound("Failed to produce files")
-            return response
-        try:
+            # Handle the file response
             if output_format == "png":
-                output_format = "zip"
-            response = HttpResponse(open(output_name, 'rb'), content_type='application/' + output_format)
-            response['Content-Disposition'] = 'attachment; filename="' + output_name + '"'
-            delete1 = subprocess.run(["rm", "-rf", output_name])
-            delete2 = subprocess.run(["rm", "-rf", "vf_out.vfg"])
-        except IOError:
-            response = HttpResponseNotFound('File not exist')
-        return response
+                content_type = 'application/zip'
+                disposition = 'attachment; filename=states.zip'
+            else:
+                content_type = f'application/{output_format}'
+                disposition = f'attachment; filename="planimation.{output_format}"'
+
+            response = FileResponse(output_stream, content_type=content_type)
+            response['Content-Disposition'] = disposition
+
+            subprocess.run(["rm", "-rf", "vf_out.vfg"])
+
+            return response
+
+        except Exception as e:
+            # Ideally, log the error here for debugging purposes
+            return HttpResponseNotFound(str(e))
