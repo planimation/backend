@@ -18,7 +18,7 @@ import Parser_Functions
 import Solver
 import Initialise
 import json
-import Media_exporter
+import exporter
 # Create your views here.
 
 from app.models import PDDL
@@ -253,7 +253,7 @@ def capture(filename, format, parameters=None):
         # p2 = subprocess.run(["ffmpeg", "-framerate", "2", "-i", "ScreenshotFolder/shot%d.png", "planimation." + format])
         # p2 = subprocess.run(["ffmpeg", "-framerate", "2", "-i", "ScreenshotFolder/shot%d.png", "-c:v", "libx264", "-vf",
         #                      "fps=25", "-pix_fmt", "yuv420p", "planimation." + format])
-        p2 = Media_exporter.export_media(filename, format, parameters)
+        p2 = exporter.export_media(filename, format, parameters)
         if p2 == "error":
             return "error"
         return "planimation.mp4"
@@ -295,7 +295,7 @@ class LinkDownloadPlanimation(APIView):
             with open("vf_out.vfg", "w") as vfg:
                 vfg.write(vfg_data)
 
-            output_stream = Media_exporter.export_media("vf_out.vfg", output_format, parameters)
+            output_stream = exporter.export_media("vf_out.vfg", output_format, parameters)
 
             # Handle the file response
             if output_format == "png":
