@@ -62,7 +62,7 @@ class Action (object):
         return hash (self._hash_string ())
 
     def __cmp__ (self, a):
-        return cmp (self._hash_string (), a._hash_string())
+        return self.cmp(self._hash_string (), a._hash_string())
 
     def __eq__ (self, a):
         return self.is_equal (a)

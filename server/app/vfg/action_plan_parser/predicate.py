@@ -76,7 +76,7 @@ class Predicate (object):
         return not (self == p)
 
     def __cmp__ (self, p):
-        return cmp(self._hash_string(), p._hash_string())
+        return self.cmp(self._hash_string(), p._hash_string())
 
     def is_equal (self, p):
         """Return True iff two predicates are equal."""
