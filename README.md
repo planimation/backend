@@ -52,12 +52,11 @@ Latest Development Build Status
 
 ## Docker Build
 
-- Install Docker
+- Install Docker in /backend working directory
 
     ```
-    export IMAGE_TAG=planimation-backend:latest
-    docker build -t IMAGE_TAG -f /backend/docker/release/Dockerfile server
-    docker run -d -p 8000:8000 IMAGE_TAG
+    docker build -t planimation-backend:latest -f server/docker/release/Dockerfile server
+    docker run -d -p 8000:8000 planimation-backend:latest
     docker ps
     ```
 
