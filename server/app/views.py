@@ -8,7 +8,6 @@ sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/' + "vfg/parser"))
 sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/' + "vfg/adapter"))
 sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/' + "vfg/adapter/visualiser_adapter"))
 sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/' + "media_export"))
-import Plan_generator  # Step1: get plan from planning domain api
 import Problem_parser  # Step2: parse problem pddl, to get the inital and goal stage
 import Predicates_generator  # Step3: manipulate the predicate for each step/stage
 import Transfer  # Step4. use the animation profile and stages from step3 to get the visualisation file
@@ -19,6 +18,7 @@ import Solver
 import Initialise
 import json
 import exporter
+import Plan_generator
 # Create your views here.
 
 from app.models import PDDL
@@ -34,7 +34,7 @@ from rest_framework.renderers import TemplateHTMLRenderer
 import zipfile
 from django.http import HttpResponse, HttpResponseNotFound, FileResponse
 
-#(Oct 12, 2020 Changyuan Liu import for download single png)
+# (Oct 12, 2020 Changyuan Liu import for download single png)
 import re
 import shutil
 
@@ -71,7 +71,7 @@ class LinkUploadView(APIView):
             # for more details error template, could use:
             # return Response({"visualStages": [], "subgoalPool": {}, "subgoalMap": {}, "transferType": 0, "imageTable": {}
             # ,"message": str(e)})
-            return Response({"message": "Failed to open domain file \n\n " + str(e)})
+            return Response({"message": "Failed to open domain file \n\n " + str(e), "status": 'error'})
 
         try:
             problem_file = request.data['problem'].encode('utf-8').decode('utf-8-sig').lower()
@@ -81,21 +81,21 @@ class LinkUploadView(APIView):
         try:
             animation_file = request.data['animation'].encode('utf-8').decode('utf-8-sig')
         except Exception as e:
-            return Response({"message": "Failed to open animation file \n\n " + str(e)})
+            return Response({"message": "Failed to open animation file \n\n " + str(e), "status": 'error'})
 
         try:
             domain_file = Parser_Functions.comment_filter(domain_file)
             problem_file = Parser_Functions.comment_filter(problem_file)
             animation_file = Parser_Functions.comment_filter(animation_file)
         except Exception as e:
-            return Response({"message": "Failed to filter comments \n\n " + str(e)})
+            return Response({"message": "Failed to filter comments \n\n " + str(e), "status": 'error'})
 
         # add url and parse to get the plan(solution)
         try:
             if "url" in request.data:
                 url_link = request.data['url']
             else:
-                url_link = "http://solver.planning.domains/solve"
+                url_link = "https://solver.planning.domains:5001/package/dual-bfws-ffparser/solve"
 
             if "plan" in request.data:
                 actions = request.data['plan'].encode('utf-8').decode('utf-8-sig').lower()
@@ -109,29 +109,30 @@ class LinkUploadView(APIView):
             else:
                 plan = Plan_generator.get_plan(domain_file, problem_file, url_link)
         except Exception as e:
-            #Error arise code in Plan_generator.py line 65 - 70
-            return Response({"message": "The process ends with an exception \n\n " + str(e)})
-        
-        #parse task(domain, problem)
+            # Error arise code in Plan_generator.py line 65 - 70
+
+            return Response({"message": "The process ends with an exception \n\n " + str(e), "status": 'error'})
+
+        # parse task(domain, problem)
 
         try:
             predicates_list = Domain_parser.get_domain_json(domain_file)
             problem_dic = Problem_parser.get_problem_dic(problem_file, predicates_list)
             object_list = Problem_parser.get_object_list(problem_file)
         except Exception as e:
-            return Response({"message": "Failed to parse the problem \n\n " + str(e)})
+            return Response({"message": "Failed to parse the problem \n\n " + str(e), "status": 'error'})
 
         # parse animation file
         try:
             animation_profile = json.loads(Animation_parser.get_animation_profile(animation_file, object_list))
         except Exception as e:
-            return Response({"message": "Failed to parse the animation file \n\n " + str(e)})
+            return Response({"message": "Failed to parse the animation file \n\n " + str(e), "status": 'error'})
 
         try:
-            stages = Predicates_generator.get_stages(plan, problem_dic, problem_file,predicates_list)
+            stages = Predicates_generator.get_stages(plan['result']['plan'], problem_dic, problem_file, predicates_list)
             objects_dic = Initialise.initialise_objects(stages["objects"], animation_profile)
         except Exception as e:
-            return Response({"message": "Failed to generate stages \n\n " + str(e)})
+            return Response({"message": "Failed to generate stages \n\n " + str(e), "status": 'error'})
 
         # for testing
         #  myfile = open('plan', 'w')
@@ -172,10 +173,11 @@ class LinkUploadView(APIView):
         try:
             result = Solver.get_visualisation_dic(stages, animation_profile, plan['result']['plan'], problem_dic)
         except Exception as e:
-            return Response({"message": "Failed to solve the animation file \n\n " + str(e)})
+            return Response({"message": "Failed to solve the animation file \n\n " + str(e), "status": 'error'})
 
         try:
-            visualisation_file = Transfer.generate_visualisation_file(result, list(objects_dic.keys()), animation_profile,
+            visualisation_file = Transfer.generate_visualisation_file(result, list(objects_dic.keys()),
+                                                                      animation_profile,
                                                                       plan['result']['plan'])
             if 'fileType' in request.data:
                 output_format = request.data['fileType']
@@ -202,7 +204,7 @@ class LinkUploadView(APIView):
                     return response
             return Response(visualisation_file)
         except Exception as e:
-            return Response({"message": "Failed to generate visualisation file \n\n " + str(e)})
+            return Response({"message": "Failed to generate visualisation file \n\n " + str(e), "status": 'error'})
 
 
 class UserGuide(APIView):
@@ -218,37 +220,41 @@ def zipdir(path, ziph):
         for file in files:
             ziph.write(os.path.join(root, file))
 
+
 # helper function to downlaod single png
 def imgdir(path, format):
     for root, dirs, files in os.walk(path):
         if format == "fpng":
-            shutil.copy(os.path.join(root,"shot1.png"), "planimation.png")
+            shutil.copy(os.path.join(root, "shot1.png"), "planimation.png")
             return None
         fileLen = len(files)
         for file in files:
-            if (int(re.search(r'\d+',file)[0])==fileLen):
+            if (int(re.search(r'\d+', file)[0]) == fileLen):
                 print(file)
-                shutil.copy(os.path.join(root,file),"planimation.png")
+                shutil.copy(os.path.join(root, file), "planimation.png")
+
 
 # Helper function to capture images and convert to desired format
 # Xinzhe Li 22/09/2020
 
 def capture(filename, format, parameters=None):
     # fpng stands for the first png in a sequence and lpng stands for the last
-    if format != "gif" and format != "mp4" and format != "png" and format != "webm" and format !="lpng" and format !="fpng":
+    if format != "gif" and format != "mp4" and format != "png" and format != "webm" and format != "lpng" and format != "fpng":
         return "error"
-    p1 = subprocess.run(["sudo", "xvfb-run", "-a", "-s", "-screen 0 640x480x24", "./linux_build/linux_standalone.x86_64", filename, "-logfile", "stdlog", "-screen-fullscreen", "0", "-screen-width", "640", "-screen-height", "480"])
+    p1 = subprocess.run(
+        ["sudo", "xvfb-run", "-a", "-s", "-screen 0 640x480x24", "./linux_build/linux_standalone.x86_64", filename,
+         "-logfile", "stdlog", "-screen-fullscreen", "0", "-screen-width", "640", "-screen-height", "480"])
     if p1.returncode != 0:
         return "error"
     if format == "png":
         zipf = zipfile.ZipFile("planimation.zip", 'w', zipfile.ZIP_DEFLATED)
         zipdir('ScreenshotFolder', zipf)
         zipf.close()
-        #pz = subprocess.run(["zip", "-r", "planimation.zip", "/ScreenshotFolder"])
+        # pz = subprocess.run(["zip", "-r", "planimation.zip", "/ScreenshotFolder"])
         format = "zip"
     elif format == "lpng" or format == "fpng":
-    	imgdir('ScreenshotFolder', format)
-    	format = "png"
+        imgdir('ScreenshotFolder', format)
+        format = "png"
     elif format == "mp4":
         # p2 = subprocess.run(["ffmpeg", "-framerate", "2", "-i", "ScreenshotFolder/shot%d.png", "planimation." + format])
         # p2 = subprocess.run(["ffmpeg", "-framerate", "2", "-i", "ScreenshotFolder/shot%d.png", "-c:v", "libx264", "-vf",
@@ -290,7 +296,7 @@ class LinkDownloadPlanimation(APIView):
             vfg_data = data["vfg"]
             output_format = data.get("fileType", "")
             parameters = data.get("params", None)
-            
+
             # Save the vfg data into a file (though ideally this should be handled in memory to avoid I/O overhead)
             with open("vf_out.vfg", "w") as vfg:
                 vfg.write(vfg_data)
