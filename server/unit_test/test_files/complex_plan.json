@@ -1,0 +1,89 @@
+{
+    "result": {
+        "length": 19,
+        "logPath": "None",
+        "output": " --- OK.\n Match tree built with 96 nodes.\n\nPDDL problem description loaded: \n\tDomain: GRID-VISIT-ALL\n\tProblem: GRID-12\n\t#Actions: 96\n\t#Fluents: 31\nGoals found: 15\nGoals_Edges found: 15\nStarting search with 1-BFWS...\n--[15 / 0]--\n--[14 / 0]--\n--[14 / 2]--\n--[13 / 0]--\n--[13 / 2]--\n--[12 / 0]--\n--[12 / 2]--\n--[11 / 0]--\n--[11 / 2]--\n--[10 / 0]--\n--[10 / 2]--\n--[9 / 0]--\n--[9 / 2]--\n--[8 / 0]--\n--[8 / 2]--\n--[7 / 0]--\n--[7 / 2]--\n--[6 / 0]--\n--[6 / 2]--\n--[5 / 0]--\n--[5 / 2]--\n--[4 / 0]--\n--[4 / 2]--\n--[3 / 0]--\n--[3 / 2]--\n--[2 / 0]--\n--[2 / 2]--\n--[2 / 4]--\n--[1 / 0]--\n--[1 / 6]--\n--[0 / 0]--\n--[0 / 4]--\nTotal time: 0.000329\nNodes generated during search: 76\nNodes expanded during search: 27\nPlan found with cost: 19\nFast-BFS search completed in 0.000329 secs\n",
+        "parse_status": "ok",
+        "plan": [
+            {
+                "action": "  (:action move\n    :parameters (loc2_2 loc1_2)\n    :precondition\n      (and\n        (at-robot loc2_2)\n        (connected loc2_2 loc1_2)\n      )\n    :effect\n      (and\n        (at-robot loc1_2)\n        (not\n          (at-robot loc2_2)\n        )\n        (visited loc1_2)\n      )\n  )",
+                "name": "(move loc2_2 loc1_2)"
+            },
+            {
+                "action": "  (:action move\n    :parameters (loc1_2 loc1_1)\n    :precondition\n      (and\n        (at-robot loc1_2)\n        (connected loc1_2 loc1_1)\n      )\n    :effect\n      (and\n        (at-robot loc1_1)\n        (not\n          (at-robot loc1_2)\n        )\n        (visited loc1_1)\n      )\n  )",
+                "name": "(move loc1_2 loc1_1)"
+            },
+            {
+                "action": "  (:action move\n    :parameters (loc1_1 loc2_1)\n    :precondition\n      (and\n        (at-robot loc1_1)\n        (connected loc1_1 loc2_1)\n      )\n    :effect\n      (and\n        (at-robot loc2_1)\n        (not\n          (at-robot loc1_1)\n        )\n        (visited loc2_1)\n      )\n  )",
+                "name": "(move loc1_1 loc2_1)"
+            },
+            {
+                "action": "  (:action move\n    :parameters (loc2_1 loc3_1)\n    :precondition\n      (and\n        (at-robot loc2_1)\n        (connected loc2_1 loc3_1)\n      )\n    :effect\n      (and\n        (at-robot loc3_1)\n        (not\n          (at-robot loc2_1)\n        )\n        (visited loc3_1)\n      )\n  )",
+                "name": "(move loc2_1 loc3_1)"
+            },
+            {
+                "action": "  (:action move\n    :parameters (loc3_1 loc3_2)\n    :precondition\n      (and\n        (at-robot loc3_1)\n        (connected loc3_1 loc3_2)\n      )\n    :effect\n      (and\n        (at-robot loc3_2)\n        (not\n          (at-robot loc3_1)\n        )\n        (visited loc3_2)\n      )\n  )",
+                "name": "(move loc3_1 loc3_2)"
+            },
+            {
+                "action": "  (:action move\n    :parameters (loc3_2 loc4_2)\n    :precondition\n      (and\n        (at-robot loc3_2)\n        (connected loc3_2 loc4_2)\n      )\n    :effect\n      (and\n        (at-robot loc4_2)\n        (not\n          (at-robot loc3_2)\n        )\n        (visited loc4_2)\n      )\n  )",
+                "name": "(move loc3_2 loc4_2)"
+            },
+            {
+                "action": "  (:action move\n    :parameters (loc4_2 loc4_3)\n    :precondition\n      (and\n        (at-robot loc4_2)\n        (connected loc4_2 loc4_3)\n      )\n    :effect\n      (and\n        (at-robot loc4_3)\n        (not\n          (at-robot loc4_2)\n        )\n        (visited loc4_3)\n      )\n  )",
+                "name": "(move loc4_2 loc4_3)"
+            },
+            {
+                "action": "  (:action move\n    :parameters (loc4_3 loc4_4)\n    :precondition\n      (and\n        (at-robot loc4_3)\n        (connected loc4_3 loc4_4)\n      )\n    :effect\n      (and\n        (at-robot loc4_4)\n        (not\n          (at-robot loc4_3)\n        )\n        (visited loc4_4)\n      )\n  )",
+                "name": "(move loc4_3 loc4_4)"
+            },
+            {
+                "action": "  (:action move\n    :parameters (loc4_4 loc3_4)\n    :precondition\n      (and\n        (at-robot loc4_4)\n        (connected loc4_4 loc3_4)\n      )\n    :effect\n      (and\n        (at-robot loc3_4)\n        (not\n          (at-robot loc4_4)\n        )\n        (visited loc3_4)\n      )\n  )",
+                "name": "(move loc4_4 loc3_4)"
+            },
+            {
+                "action": "  (:action move\n    :parameters (loc3_4 loc2_4)\n    :precondition\n      (and\n        (at-robot loc3_4)\n        (connected loc3_4 loc2_4)\n      )\n    :effect\n      (and\n        (at-robot loc2_4)\n        (not\n          (at-robot loc3_4)\n        )\n        (visited loc2_4)\n      )\n  )",
+                "name": "(move loc3_4 loc2_4)"
+            },
+            {
+                "action": "  (:action move\n    :parameters (loc2_4 loc2_3)\n    :precondition\n      (and\n        (at-robot loc2_4)\n        (connected loc2_4 loc2_3)\n      )\n    :effect\n      (and\n        (at-robot loc2_3)\n        (not\n          (at-robot loc2_4)\n        )\n        (visited loc2_3)\n      )\n  )",
+                "name": "(move loc2_4 loc2_3)"
+            },
+            {
+                "action": "  (:action move\n    :parameters (loc2_3 loc1_3)\n    :precondition\n      (and\n        (at-robot loc2_3)\n        (connected loc2_3 loc1_3)\n      )\n    :effect\n      (and\n        (at-robot loc1_3)\n        (not\n          (at-robot loc2_3)\n        )\n        (visited loc1_3)\n      )\n  )",
+                "name": "(move loc2_3 loc1_3)"
+            },
+            {
+                "action": "  (:action move\n    :parameters (loc1_3 loc1_4)\n    :precondition\n      (and\n        (at-robot loc1_3)\n        (connected loc1_3 loc1_4)\n      )\n    :effect\n      (and\n        (at-robot loc1_4)\n        (not\n          (at-robot loc1_3)\n        )\n        (visited loc1_4)\n      )\n  )",
+                "name": "(move loc1_3 loc1_4)"
+            },
+            {
+                "action": "  (:action move\n    :parameters (loc1_4 loc2_4)\n    :precondition\n      (and\n        (at-robot loc1_4)\n        (connected loc1_4 loc2_4)\n      )\n    :effect\n      (and\n        (at-robot loc2_4)\n        (not\n          (at-robot loc1_4)\n        )\n        (visited loc2_4)\n      )\n  )",
+                "name": "(move loc1_4 loc2_4)"
+            },
+            {
+                "action": "  (:action move\n    :parameters (loc2_4 loc2_3)\n    :precondition\n      (and\n        (at-robot loc2_4)\n        (connected loc2_4 loc2_3)\n      )\n    :effect\n      (and\n        (at-robot loc2_3)\n        (not\n          (at-robot loc2_4)\n        )\n        (visited loc2_3)\n      )\n  )",
+                "name": "(move loc2_4 loc2_3)"
+            },
+            {
+                "action": "  (:action move\n    :parameters (loc2_3 loc3_3)\n    :precondition\n      (and\n        (at-robot loc2_3)\n        (connected loc2_3 loc3_3)\n      )\n    :effect\n      (and\n        (at-robot loc3_3)\n        (not\n          (at-robot loc2_3)\n        )\n        (visited loc3_3)\n      )\n  )",
+                "name": "(move loc2_3 loc3_3)"
+            },
+            {
+                "action": "  (:action move\n    :parameters (loc3_3 loc4_3)\n    :precondition\n      (and\n        (at-robot loc3_3)\n        (connected loc3_3 loc4_3)\n      )\n    :effect\n      (and\n        (at-robot loc4_3)\n        (not\n          (at-robot loc3_3)\n        )\n        (visited loc4_3)\n      )\n  )",
+                "name": "(move loc3_3 loc4_3)"
+            },
+            {
+                "action": "  (:action move\n    :parameters (loc4_3 loc4_2)\n    :precondition\n      (and\n        (at-robot loc4_3)\n        (connected loc4_3 loc4_2)\n      )\n    :effect\n      (and\n        (at-robot loc4_2)\n        (not\n          (at-robot loc4_3)\n        )\n        (visited loc4_2)\n      )\n  )",
+                "name": "(move loc4_3 loc4_2)"
+            },
+            {
+                "action": "  (:action move\n    :parameters (loc4_2 loc4_1)\n    :precondition\n      (and\n        (at-robot loc4_2)\n        (connected loc4_2 loc4_1)\n      )\n    :effect\n      (and\n        (at-robot loc4_1)\n        (not\n          (at-robot loc4_2)\n        )\n        (visited loc4_1)\n      )\n  )",
+                "name": "(move loc4_2 loc4_1)"
+            }
+        ],
+        "planPath": "None",
+        "type": "full"
+    },
+    "status": "ok"
+}

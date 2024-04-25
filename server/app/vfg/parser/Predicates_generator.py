@@ -22,12 +22,6 @@
 #-- Date     : 09/Septemeber/2018
 #-- Version  : 2.0
 #--------------------------------------------------------------------------------
-#-----------------------------Authorship-----------------------------------------
-#-- Authors  : Jian Zhang, Zhichen Lin
-#-- Group    : Planimation
-#-- Date     : 15/April/2024
-#-- Version  : 3.0
-#--------------------------------------------------------------------------------
 import sys
 import os
 import json
@@ -53,7 +47,7 @@ def get_stages(plan, problem_dic, problem_file, predicates_list):
 
     # Getting the list of actions from results returned from planning.domain api
     try:
-        actionlist = plan
+        actionlist = plan['result']['plan']
     except KeyError:
         raise Exception("No plan has been returned")
 

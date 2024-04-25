@@ -21,12 +21,10 @@ class TestStringMethods(unittest.TestCase):
     def test_upper(self):
         self.assertEqual('foo'.upper(), 'FOO')
 
-
     # Initial test case
     def test_isupper(self):
         self.assertTrue('FOO'.isupper())
         self.assertFalse('Foo'.isupper())
-
 
     # Initial test case
     def test_split(self):
@@ -34,7 +32,6 @@ class TestStringMethods(unittest.TestCase):
         self.assertEqual(s.split(), ['hello', 'world'])
         with self.assertRaises(TypeError):
             s.split(2)
-
 
     def test_planimation_process(self):
         """ Test case for testing the whole process of planimation
@@ -94,7 +91,6 @@ class TestStringMethods(unittest.TestCase):
             , os.path.abspath(os.path.dirname(__file__) + '/test_files/' + 'expect_output.vfg'), shallow=False)
             , msg="The generated vfg file is different from the expected output.")
 
-
     def test_domain_parser(self):
         """ Test case for testing the domain parser functions
         Test the functionality of translate domain PDDL file into JSON structure.
@@ -134,12 +130,11 @@ class TestStringMethods(unittest.TestCase):
         # (clear ?x)
         # (handempty)
         # (holding ?x))
-        complex_expected_predicates = {'on': 2, 'ontable': 1, 'clear': 1, 'handempty': 0, 'holding' : 1}
+        complex_expected_predicates = {'on': 2, 'ontable': 1, 'clear': 1, 'handempty': 0, 'holding': 1}
 
         # Check that the generated complex predicates list is the same as the expected list
         self.assertTrue(complex_predicates_list == complex_expected_predicates
-            , msg="The generated complex predicates list is different from the expected list")
-
+                        , msg="The generated complex predicates list is different from the expected list")
 
     def test_problem_parser(self):
         """ Test case for testing the problem parser functions
@@ -202,14 +197,15 @@ class TestStringMethods(unittest.TestCase):
         self.assertTrue(complex_expected_problem == complex_problem_list
             , msg="The generated complex problem list is different from the expected output")
 
-
     def test_predicates_generator(self):
         """ Test case for testing the predicates generator function
         Test the functionality of parse the predicates into the stage data structure
 
         Expected Input:
-            domain.pddl, problem.pddl: The domain and problem PDDL files.
-            4_ops_problem, 4_ops_domain.pddl: The domain and problem PDDL files.
+            domain.pddl, problem.pddl: The complex domain and problem PDDL files.
+            complex_plan.json: The complex plan file.
+            4_ops_problem, 4_ops_domain.pddl: The simple domain and problem PDDL files.
+            simple_plan.json: The simple plan file.
             simple_expected_stages.json: The expected output JSON file.
 
         Expected Output:
@@ -225,7 +221,10 @@ class TestStringMethods(unittest.TestCase):
             + '/test_files/' + '4_ops_problem.pddl'), 'r', encoding='utf-8-sig') as f:
             simple_problem_content = f.read().lower()
 
-        simple_plan = Plan_generator.get_plan(simple_domain_content, simple_problem_content, '')
+        with open(os.path.abspath(os.path.dirname(__file__)
+                                  + '/test_files/' + 'simple_plan.json'), 'r', encoding='utf-8-sig') as f:
+            simple_plan = json.load(f)
+
         simple_predicates_list = Domain_parser.get_domain_json(simple_domain_content)
         simple_problem_dic = get_problem_dic(simple_problem_content, simple_predicates_list)
         simple_object_list = get_object_list(simple_problem_content)
@@ -247,7 +246,10 @@ class TestStringMethods(unittest.TestCase):
             + '/test_files/' + 'problem.pddl'), 'r', encoding='utf-8-sig') as f:
             complex_problem_content = f.read().lower()
 
-        complex_plan = Plan_generator.get_plan(complex_domain_content, complex_problem_content, '')
+        with open(os.path.abspath(os.path.dirname(__file__)
+                                  + '/test_files/' + 'complex_plan.json'), 'r', encoding='utf-8-sig') as f:
+            complex_plan = json.load(f)
+
         complex_predicates_list = Domain_parser.get_domain_json(complex_domain_content)
         complex_problem_dic = get_problem_dic(complex_problem_content, complex_predicates_list)
         complex_object_list = get_object_list(complex_problem_content)
@@ -260,7 +262,6 @@ class TestStringMethods(unittest.TestCase):
         # Check that the generated complex stages are the same as the expected output
         self.assertTrue(complex_stages == complex_expected_stages
             , msg="The generated complex stages are different from the expected output")
-
 
     def test_solver(self):
         """ Test case for testing the solver functions
