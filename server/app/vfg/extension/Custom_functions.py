@@ -48,6 +48,8 @@ def customf_controller(fname, obj_list, settings, state, remove, get_meta=False)
         return calculate_label(obj_list, settings, state, remove, get_meta)
     elif fname == "draw_line":
         return draw_line(obj_list, settings, state, remove, get_meta)
+    elif fname == "distribute_next_objects":
+        return distribute_next_objects(obj_list, settings, state, remove, get_meta)
 
 
 def get_all_funtion_name():
@@ -58,7 +60,7 @@ def get_all_funtion_name():
     function_name = ["distributex", "distribute_grid_around_point", "distribute_within_objects_vertical",
                      "apply_smaller", "distribute_within_objects_horizontal_v2",
                      "align_middle", "distributey", "distribute_within_objects_horizontal", "calculate_label",
-                     "draw_line"]
+                     "draw_line", "distribute_next_objects"]
     return function_name
 
 
@@ -469,7 +471,6 @@ def distribute_within_objects_horizontal(obj_list, settings, state, remove, get_
     if obj in state[parent]:
         objindex = state[parent].index(obj)
         result["x"] = parentdic["x"] + objindex * (objdic["width"] + padding)
-        print(result)
         return result, state
     else:
         for num, value in enumerate(state[parent]):
@@ -559,11 +560,11 @@ def calculate_label(obj_list, settings, state, remove, get_meta):
     obj2, obj2dic = list(obj_list[1].items())[0]
     if obj2 not in state:
         state[obj2] = 1
-        result["label"] = 1
     else:
         state[obj2] = state[obj2] + 1
 
-        result["label"] = str(state[obj2])
+    result["label"] = str(state[obj2])
+
     return result, state
 
 
@@ -599,4 +600,77 @@ def align_middle(obj_list, settings, state, remove, get_meta):
     obj2, obj2dic = list(obj_list[1].items())[0]
 
     result["x"] = obj2dic["x"] + (obj2dic["width"] - obj1dic["width"]) / 2
+    return result, state
+
+def distribute_next_objects(obj_list, settings, state, remove, get_meta):
+    """
+    The function returns an x and y location of an object based on the location directly under its parent.
+
+    :param obj_list: Array of objects dictionary where the first item is the object and the second item is the parent
+    :param settings: A dictionary for settings including padding between objects, direction and placement
+    :param state: State of the world to track object positions
+    :param remove: Whether to remove the object from the state (not implemented in this version)
+    :param get_meta: Whether to return metadata about requirements
+    :return: Updated attribute dictionary and state
+    """
+    if get_meta:
+        meta = {
+            "reset": True,
+            "require": {
+                "0": ["height"],
+                "1": ["x", "y"],
+            }
+        }
+        return meta
+
+    # Default function settings
+    default_setting = {
+        "padding": 5,  # Default padding between stacked objects
+        "placement": "below",
+        "direction": "vertical"
+    }
+    # Update settings if provided
+    default_setting.update({k: settings[k] for k in default_setting if k in settings})
+
+    if len(obj_list) != 2:
+        return False
+
+    result = {
+        "x": False,
+        "y": False
+    }
+
+    # Get object and parent information
+    obj, objdic = list(obj_list[0].items())[0]
+    parent, parentdic = list(obj_list[1].items())[0]
+
+    # Initialize parent state
+    if parent not in state:
+        state[parent] = []
+
+    # Add padding to stacked objects
+    obj_height_with_padding = objdic["height"] + default_setting["padding"]
+
+    # Lambda functions for calculating coordinates based on the number of objects, directions and placements
+    dir_dic = {
+        "horizontal": lambda obj_num: {
+            "x": parentdic["x"] + obj_height_with_padding * (obj_num - 1),
+            "y": parentdic["y"] - obj_height_with_padding if default_setting["placement"] == "below"
+            else parentdic["y"] + obj_height_with_padding
+        },
+        "vertical": lambda obj_num: {
+            "x": parentdic["x"],
+            "y": parentdic["y"] - obj_height_with_padding * obj_num if default_setting["placement"] == "below"
+            else parentdic["y"] + obj_height_with_padding * obj_num
+        }
+    }
+
+    if obj not in state[parent]:  # Stack new object under parent
+        state[parent].append(obj)
+        obj_num = len(state[parent])
+        result = dir_dic[default_setting["direction"]](obj_num)
+    else:  # Reposition stacked objects if one object popped out
+        obj_num = state[parent].index(obj) + 1
+        result = dir_dic[default_setting["direction"]](obj_num)
+
     return result, state
