@@ -54,18 +54,20 @@ def check_rule_complete(predicate, objects_dic, predicates_rules):
     obj_ref_dic = dict(zip(objects_list_ref, object_list))
     if "require" in predicate_rule:
         for obj_index in predicate_rule["require"]:
-            right_args = predicate_rule["require"][obj_index] 
-            if(len(right_args) == 0) : property = ""
-            elif(len(right_args) >=1) : property = right_args[0]
-            if (obj_index not in obj_ref_dic):                  # raise error when object doesn't exist
+            right_args = predicate_rule["require"][obj_index]
+            if (len(right_args) == 0):
+                property = ""
+            elif (len(right_args) >= 1):
+                property = right_args[0]
+            if (obj_index not in obj_ref_dic):  # raise error when object doesn't exist
                 raise Exception("%s used in (%s, %s) doesn't exsits as an argument of predicate %s"
-             %(obj_index,obj_index, property, pname.upper()))
+                                % (obj_index, obj_index, property, pname.upper()))
             for property in predicate_rule["require"][obj_index]:
-                objectname = obj_ref_dic[obj_index]         
-                if (property not in objects_dic[objectname]):   # raise error when object doesn't exist
-                    constructString = "(%s, %s)" %(obj_index, property)
-                    raise Exception ("'%s' used in %s doesn't exist as an argument in predicate %s" 
-                %(property, constructString, pname.upper()))
+                objectname = obj_ref_dic[obj_index]
+                if (property not in objects_dic[objectname]):  # raise error when object doesn't exist
+                    constructString = "(%s, %s)" % (obj_index, property)
+                    raise Exception("'%s' used in %s doesn't exist as an argument in predicate %s"
+                                    % (property, constructString, pname.upper()))
                 if objects_dic[objectname][property] is False:
                     return False
     return True
@@ -110,20 +112,22 @@ def applypredicates(predicate,
                 object_index, left, propertyname = get_objname_property(rule["left"], obj_ref_dic)
             except Exception as e:
                 (object_index, right_args) = list(rule["left"].items())[0]
-                if(len(right_args) == 0) : property = ""
-                elif(len(right_args) >=1) : property = right_args[0]
-                raise Exception("%s used in (%s, %s) doesn't exsit as an argument of predicate %s" 
-            %(object_index, object_index, property, pname.upper()))
+                if (len(right_args) == 0):
+                    property = ""
+                elif (len(right_args) >= 1):
+                    property = right_args[0]
+                raise Exception("%s used in (%s, %s) doesn't exsit as an argument of predicate %s"
+                                % (object_index, object_index, property, pname.upper()))
 
             # raise error when property is not given correctly
-            if (propertyname == []):                                     # when property or is not given
-                construct = "(%s, )" %object_index
-                raise Exception ("%s used at predicate %s needs more arguments" %(construct, pname.upper()))
-            elif (propertyname[0] not in objects_dic[left]):             # when a wrong proterty is given
-                construct = "(%s, %s)" %(object_index,propertyname[0])
-                raise Exception ("'%s' used in %s doesn't exist as a property of %s at predicate %s" 
-            %(propertyname[0],construct, object_index, pname.upper()))
-            
+            if (propertyname == []):  # when property or is not given
+                construct = "(%s, )" % object_index
+                raise Exception("%s used at predicate %s needs more arguments" % (construct, pname.upper()))
+            elif (propertyname[0] not in objects_dic[left]):  # when a wrong proterty is given
+                construct = "(%s, %s)" % (object_index, propertyname[0])
+                raise Exception("'%s' used in %s doesn't exist as a property of %s at predicate %s"
+                                % (propertyname[0], construct, object_index, pname.upper()))
+
             value = predicate_rule[rulename]["value"]
             if "function" in value:
                 fproperty = value["function"]
@@ -211,8 +215,10 @@ def update_object(objectdic, properties, gstate, fname, result):
         raise ValueError("customer function: " + fname + " returns " + str(len(new_properties)) + " properties, but "
                          + str(len(properties)) + " properties was given.")
     try:
-        for property in properties:
-            objectdic[property] = new_properties[property]
+        # for property in properties:
+        #     objectdic[property] = new_properties[property]
+        for i in range(len(properties)):
+            objectdic[properties[i]] = list(new_properties.values())[i]
     except:
         helpinfo = "("
         for key in new_properties.keys():
@@ -304,7 +310,13 @@ def solve_all_stages(stages, objects_dic, predicates_rules, gstate, actionlist, 
     result["visualStages"] = []
     for stage in stages:
 
-        stage_dic = {}
+        stage_dic = {
+            "visualSprites": {},
+            "stageName": "",
+            "stageInfo": "",
+        }
+        if "cost" in stage:
+            stage_dic["cost"] = 0
         object_dic_copy = copy.deepcopy(objects_dic)
         predicates = stage["items"]
         sorted_predicates = priority(predicates, predicates_rules)
@@ -315,13 +327,9 @@ def solve_all_stages(stages, objects_dic, predicates_rules, gstate, actionlist, 
             gstate[fname] = {}
         solvepredicates(sorted_predicates, object_dic_copy, predicates_rules, gstate)
         stage_dic["visualSprites"] = object_dic_copy
-        if "stageName" not in stage:
-            stage_dic["stageName"] = "Inital Stage"
-            stage_dic["stageInfo"] = "No step information"
-
-        else:
-            stage_dic["stageName"] = stage["stageName"]
-            stage_dic["stageInfo"] = stage["stageInfo"]
+        for item in stage_dic.keys():
+            if item in stage:
+                stage_dic[item] = stage[item]
 
         result["visualStages"].append(stage_dic)
 

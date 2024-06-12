@@ -84,6 +84,9 @@ def parse_value(input):
 
     if type(input) is dict:
         for k, v in input.items():
+            if v is None:
+                continue
+
             if type(v) is dict:
                 input[k] = parse_value(v)
             elif type(v) is list:

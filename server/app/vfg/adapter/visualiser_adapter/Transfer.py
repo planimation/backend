@@ -28,23 +28,23 @@ def generate_visualisation_file(result, object_list, animation_profile, action_l
     :return: visualisation file for the Unity Visualiser
     """
     final = {"visualStages": []}
-    one_stage = {}
-    sprite_list = []
-    lists = result["visualStages"]
+
+    visualStages = []
+    stages = result["visualStages"]
     panel_size, shift = get_panel_size(result)
-    index = 0
-    for item in lists:
-        one_stage = item["visualSprites"]
-        transfered_stage = transfer(one_stage, object_list, panel_size, shift)
-        transfered_stage["stageName"] = item["stageName"]
-        transfered_stage["stageInfo"] = item["stageInfo"]
-        if (index == len(action_list)):
+
+    for stage in stages:
+        transfered_stage = transfer(stage["visualSprites"], object_list, panel_size, shift)
+        for item in stage:
+            if item not in transfered_stage:
+                transfered_stage[item] = stage[item]
+        if stage == stages[len(stages) - 1]:
             transfered_stage["isFinal"] = "true"
         else:
             transfered_stage["isFinal"] = "false"
-        sprite_list.append(transfered_stage)
-        index = index + 1
-    final["visualStages"] = sprite_list
+        visualStages.append(transfered_stage)
+
+    final["visualStages"] = visualStages
     finalSubgoal = Subgoal_adapter.generate_subgoal(result["subgoals"])
     final["subgoalPool"] = finalSubgoal["subgoalPool"]
     final["subgoalMap"] = finalSubgoal["subgoalMap"]

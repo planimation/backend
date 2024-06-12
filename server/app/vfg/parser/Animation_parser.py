@@ -42,7 +42,9 @@ def get_animation_profile(animation_pddl, object_list):
               "predicates_rules": {},
               "visual": {},
               "imageTable": {"m_keys": [],
-                             "m_values": []}}
+                             "m_values": []},
+              "cost_keyword": None
+              }
     parse(copy.copy(text_to_parse), result)
     Adapter.transfer(result, object_list)
     return json.dumps(result)
@@ -64,6 +66,8 @@ def parse(text, result):
             parse_predicate(text_block.lower(), result)
         elif "image" in text_block:
             parse_image(text_block, result)
+        elif "cost_keyword" in text_block:
+            parse_cost(text_block, result)
 
 
 def parse_visual(text_to_parse, result):
@@ -355,3 +359,10 @@ def parse_rules(text, require_dic):
         elif "action" in rule:
             template[newrule] = parse_actionrule(rule, require_dic)
     return template
+
+def parse_cost(text_to_parse, result):
+    pattern = r'\(:cost_keyword\s*([^\s\)]+)\)'
+    match = re.search(pattern, text_to_parse)
+    cost_text = match.group(1)
+    result["cost_keyword"] = cost_text
+    return result

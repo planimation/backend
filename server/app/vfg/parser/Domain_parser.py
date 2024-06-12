@@ -32,8 +32,19 @@ def get_domain_json(domain_text):
     :return: a dictionary contain which key is the predicate name and value is the number of objects
     """
     try:
+        left_brackets = 1
+        old_strPre_start = domain_text.index("predicates")
+        old_strPre_end = old_strPre_start
+        while left_brackets !=0 :
+            if domain_text[old_strPre_end] == ")":
+                left_brackets -= 1
+            elif domain_text[old_strPre_end] == "(":
+                left_brackets += 1
+            old_strPre_end += 1
+
+        #print(old_strPre_start, old_strPre_end)
+        old_strPre = domain_text[old_strPre_start : old_strPre_end]
         patternPare = re.compile(r'\((.*?)\)')
-        old_strPre = domain_text[domain_text.index("predicates") + len("predicates"):domain_text.index("action")]
 
         # zmff
         # replace the unnecessary arguments with space, for the sake of selecting the info needed
