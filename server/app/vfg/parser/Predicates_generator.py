@@ -27,15 +27,17 @@ import os
 import json
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 import Problem_parser
+import re
 
 
-def get_stages(plan, problem_dic, problem_file, predicates_list):
+def get_stages(plan, problem_dic, problem_file, predicates_list, animation_profile):
     """
     The function is to get the list of steps for Step3 to use
     :param plan: solution file
     :param problem_dic: problem dictionary contains the initial and goal stages
     :param problem_file: problem file name
-    :param predicates_list:
+    :param predicates_list: a list of predicates
+    :param animation_profile: animation profile
     :return:  a list of steps containing information about all stages
     """
 
@@ -55,15 +57,25 @@ def get_stages(plan, problem_dic, problem_file, predicates_list):
 
     # Final result structure
     content = {"stages": [], "objects": objects, "subgoals": []}
-
     # Adding initial stage
     content['stages'].append({
         "items": stages.copy(),
         "add": "",
         "remove": "",
         "stageName": "Initial Stage",
-        "stageInfo": "No Step Information"
+        "stageInfo": "No Step Information",
     })
+
+    if animation_profile["cost_keyword"] is not None:
+        current_cost = 0
+        content['stages'][0]["cost"] = current_cost
+    else:
+        current_cost = None
+
+
+
+
+
 
     for counter in range(len(actionlist)):
         add_predicate_list, remove_predicate_list = Problem_parser.get_separate_state_list(predicates_list, action_effect_list[counter])
@@ -108,14 +120,20 @@ def get_stages(plan, problem_dic, problem_file, predicates_list):
         step_info_with_padding = actionlist[counter]['action'].replace("\n", "\r\n")
         step_info = step_info_with_padding[step_info_with_padding.index("(:action"):]
 
+        if current_cost is not None:
+            current_cost += get_action_cost(action_effect_list[counter], animation_profile["cost_keyword"])
+
         # 4.
         # Append everything to get the final output - content
+
         result = {"items": stages.copy(),
                   "add": add_predicate_list,
                   "remove": remove_predicate_list,
                   "stageName": action_name,
-                  "stageInfo": step_info,
+                  "stageInfo": step_info
                   }
+        if current_cost is not None:
+            result["cost"] = current_cost
 
         content['stages'].append(result)
 
@@ -136,3 +154,12 @@ def get_action_effect_list(action_list):
                                       + len("effect"):])
         action_effect_list.append(clearnedstr[:-1])
     return action_effect_list
+
+def get_action_cost(action_effect, cost_keyword):
+    pattern = r"{}\s+(-?\d+(?:\.\d+)?)".format(cost_keyword)
+    match = re.search(pattern, action_effect)
+    if match:
+        cost = float(match.group(1))
+        return cost
+    else:
+        return 0
