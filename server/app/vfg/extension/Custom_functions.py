@@ -604,7 +604,7 @@ def align_middle(obj_list, settings, state, remove, get_meta):
 
 def distribute_next_objects(obj_list, settings, state, remove, get_meta):
     """
-    The function returns an x and y location of an object based on the location directly under its parent.
+    The function returns an x and y location of an object based on the location of its parent and settings specified.
 
     :param obj_list: Array of objects dictionary where the first item is the object and the second item is the parent
     :param settings: A dictionary for settings including padding between objects, direction and placement
