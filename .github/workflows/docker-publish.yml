@@ -23,8 +23,9 @@ jobs:
       - name: build the docker image
         id: build-docker-image
         run: |
-          ls -la 
-          docker build . -f server/docker/release/Dockerfile -t nirlipo/planimation_backend:latest
+          ls -la
+          cd server
+          docker build . -f docker/release/Dockerfile -t nirlipo/planimation_backend:latest
           
       - name: push the docker image
         id: push-docker-image
