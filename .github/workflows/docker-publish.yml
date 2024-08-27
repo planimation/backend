@@ -4,9 +4,9 @@ on:
   release:
     types: [published]
   # Use for testing this script, which will be triggered after a push
-  # push:
-  #   branches:
-  #       - 'develop'
+  push:
+    branches:
+        - 'develop'
 jobs:
   push_to_registry:
     name: Push Docker image to Docker Hub
@@ -30,4 +30,4 @@ jobs:
           
       - name: push the docker image
         id: push-docker-image
-        run: docker push ${{secrets.DOCKERHUB_USERNAME}}/planimation_backend:latest
+        run: docker push nirlipo/planimation_backend:latest
