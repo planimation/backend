@@ -13,18 +13,19 @@ jobs:
         uses: actions/checkout@v4
         
       - name: login to docker hub
-          id: docker-hub
-          env:
-            username: ${{secrets.DOCKERHUB_USERNAME}}
-            password: ${{secrets.DOCKERHUB_PASSWORD}}
-          run: |
-            docker login -u $username -p $password 
+        id: docker-hub
+        env:
+          username: ${{secrets.DOCKERHUB_USERNAME}}
+          password: ${{secrets.DOCKERHUB_PASSWORD}}
+        run: |
+          docker login -u $username -p $password 
 
       - name: build the docker image
-          id: build-docker-image
-          run: |
-            ls -la 
-            docker build . -f server/docker/release/Dockerfile -t nirlipo/planimation_backend:latest
-        - name: push the docker image
-          id: push-docker-image
-          run: docker push ${{secrets.DOCKERHUB_USERNAME}}/planimation_backend:latest
+        id: build-docker-image
+        run: |
+          ls -la 
+          docker build . -f server/docker/release/Dockerfile -t nirlipo/planimation_backend:latest
+          
+      - name: push the docker image
+        id: push-docker-image
+        run: docker push ${{secrets.DOCKERHUB_USERNAME}}/planimation_backend:latest
