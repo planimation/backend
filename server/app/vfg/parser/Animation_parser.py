@@ -163,7 +163,7 @@ def parse_predicate(text_to_parse, result):
 
     # Get the value of parameters
     temp_regex_pattern = re.compile(pattern_parameters + " " + "\((.*?)\)", re.IGNORECASE)
-    objectList = temp_regex_pattern.findall(temp_visual_block)[0].split()
+    objectList = [t for t in temp_regex_pattern.findall(temp_visual_block)[0].split() if t.startswith('?')]
 
     customObjectList = parseObjectLine(pattern_custom, temp_visual_block)
     # Get the value of effect
