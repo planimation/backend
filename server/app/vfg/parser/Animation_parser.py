@@ -106,10 +106,10 @@ def parse_visual(text_to_parse, result):
     # Get the value of properties
     temp_property_block = temp_visual_block[temp_visual_block.index(pattern_properties) + len(pattern_properties):]
     temp_property_block = Parser_Functions.get_one_block(temp_property_block)
-    temp_properties_pattern = re.compile("\([a-zA-Z0-9_.-]*\s[#a-zA-Z0-9_.-]*\)")
+    temp_properties_pattern = re.compile(r"\([a-zA-Z0-9_.-]*\s+[#a-zA-Z0-9_.-]+\)")
     temp_properties = temp_properties_pattern.findall(temp_property_block)
     for x in temp_properties:
-        x, y = x.replace('(', '').replace(')', '').split()
+        x, y = x.replace('(', '').replace(')', '').split()       
         sublist[x] = y
     result["visual"][temp_subshape_value] = sublist
     return result;
