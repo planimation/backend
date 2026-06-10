@@ -1,7 +1,7 @@
 # SERVER
 
-FROM python:3.6-alpine
-ENV PYTHONUNBUFFERED 1
+FROM python:3.13-alpine
+ENV PYTHONUNBUFFERED=1
 
 # [START system dependencies]
 RUN apk add --update curl gcc g++ \
@@ -16,8 +16,6 @@ RUN apk add --update jpeg-dev zlib-dev libjpeg \
 
 RUN apk add --no-cache ffmpeg
 
-RUN ln -s /usr/include/locale.h /usr/include/xlocale.h
-
 # [START app environment]
 
 RUN mkdir /code
@@ -30,4 +28,4 @@ COPY . /code/
 
 EXPOSE 8000
 
-CMD python manage.py runserver 0.0.0.0:8000
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
